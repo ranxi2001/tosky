@@ -18,8 +18,8 @@ interface MenuItem {
   openInNewTab?: boolean;
 }
 const menuItems: MenuItem[] = [
-  { name: "OKX教程", href: "/okx" },
-  { name: "Blog", href: "/" },
+  { name: "OKX教程", href: "/" },
+  { name: "Blog", href: "/blog" },
   { name: "About", href: "/about" },
 ];
 export const Navigation: FunctionComponent = () => {
