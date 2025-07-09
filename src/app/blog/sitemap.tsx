@@ -11,6 +11,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       priority: 0.8,
     },
+    {
+      url: urlJoin(config.baseUrl, "okx"),
+      lastModified: new Date(),
+      priority: 1.0,
+    },
     ...result.posts.map((post) => {
       return {
         url: urlJoin(config.baseUrl, "blog", post.slug),
