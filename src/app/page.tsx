@@ -21,8 +21,8 @@ const content = `# OKX 欧易新人注册与使用教程
    > 这是官方注册链接，确保安全可靠。
 
    - [https://onefly.top/posts/8888.html](https://onefly.top/posts/8888.html)
-   - [https://www.ouyizh.net/zh-hans/join/45175356](https://www.ouyizh.net/zh-hans/join/45175356)
-   - [https://www.okx.com/join/45175356](https://www.okx.com/join/45175356)
+   - [https://www.ouyizh.net/zh-hans/join/88596413](https://www.ouyizh.net/zh-hans/join/88596413)
+   - [https://www.okx.com/join/88596413](https://www.okx.com/join/88596413)
    - [https://onefly.top/posts/24219.html](https://onefly.top/posts/24219.html)
 
 2. **填写邀请码**  
@@ -96,7 +96,7 @@ OKX 既有 C2C 平台（0 手续费充提），也有策略交易和理财产品
 
 ---
 
-如需更多帮助，请联系社区支持。
+如需更多帮助，请联系 [社区支持：微信群聊](https://www.cnblogs.com/ranxi169/p/18456954)。
 
 `;
 

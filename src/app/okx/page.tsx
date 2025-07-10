@@ -4,99 +4,104 @@ import { config } from "@/config";
 import { signOgImageUrl } from "@/lib/og-image";
 import Markdown from "react-markdown";
 
-const content = `# OKX 欧易新人注册与使用教程
+const content = `# OKX Registration and Beginner's Guide
 
-> 本教程将手把手教你注册 OKX 交易所账户、下载 APP、完成身份验证、获取返佣，以及使用策略交易功能。
+> This tutorial will walk you step by step through creating an OKX exchange account, downloading the app, completing verification, claiming your rebate, and using strategy trading.
 
 ---
 
-## 🌐 一、注册账号
+## 🌐 1. Register Your Account
 
-1. **复制注册链接到浏览器**（注意：QQ/微信浏览器打不开）  
+1. **Copy the registration link into your browser**  
+   *(Important: Do NOT open it in QQ or WeChat browser)*  
    \`\`\`
    https://onefly.top/posts/8888.html
    \`\`\`
-   或者直接点击以下链接注册：
+   Or simply click one of these secure official links to register:
    
-   > 这是官方注册链接，确保安全可靠。
+   > Here's the official registration link to make sure it's safe and secure.
 
-   - [https://onefly.top/posts/8888.html](https://onefly.top/posts/8888.html)
-   - [https://www.ouyizh.net/zh-hans/join/45175356](https://www.ouyizh.net/zh-hans/join/45175356)
-   - [https://www.okx.com/join/45175356](https://www.okx.com/join/45175356)
-   - [https://onefly.top/posts/24219.html](https://onefly.top/posts/24219.html)
+    - [https://onefly.top/posts/8888.html](https://onefly.top/posts/8888.html)
+    - [https://www.ouyizh.net/zh-hans/join/88596413](https://www.ouyizh.net/zh-hans/join/88596413)
+    - [https://www.okx.com/join/88596413](https://www.okx.com/join/88596413)
+    - [https://onefly.top/posts/24219.html](https://onefly.top/posts/24219.html)
 
-2. **填写邀请码**  
-   - 一定要填写邀请码，否则无法享受终身 20% 官方返佣和社区福利。
-   - 如果之前注册过，卸载软件并 180 天不登录，再通过新链接登录也可重新绑定返佣。
+2. **Enter the invitation code**  
+    - You *must* enter the invitation code to enjoy the lifetime 20% official fee rebate and community benefits.
+    - If you already registered before, uninstall the app and avoid logging in for 180 days. After that, logging in via the new link allows you to rebind the rebate.
 
-3. **注册后**  
-   - 下载 APP
-   - 完成身份验证
-   - 找到你的 UID 并发送给邀请人确认
+3. **After registration**  
+    - Download the app
+    - Complete identity verification (KYC)
+    - Find your UID and send it to your inviter to confirm
 
----
-
-## 📱 二、下载 APP
-
-### iOS 下载
-- 前往某宝/某鱼购买“外区 Apple ID”，几块钱一个。
-- 登录外区 ID 后，在 App Store 搜索 **OKX** 并下载。
-- 用这个账号还能下载推特、Telegram 等软件。
-
-### 安卓下载
-1. 在官网注册页面右上角“三条杠” → 最底部“下载欧易 APP”。
-2. 如果提示无法安装：
-   - 华为：关闭“纯净模式”及“外部来源应用检查”
-   - 小米：安装页面点右上角设置，开启“安全守护”
-   - OPPO：关闭“支付保护”，安装完成再打开
 
 ---
 
-## 💰 三、OKX 策略交易介绍
+## 📱 2. Download the App
 
-策略交易 = 利用程序自动执行交易计划  
-**优势：**
-- 自动监控、严格止损止盈
-- 分散风险、提高效率
-- 小白一键下单，老手深度定制
-- 无额外管理费和分润
+### iOS Download
+    - Go to Taobao/Xianyu and purchase a "foreign Apple ID" for a few RMB.
+    - Sign in to the foreign Apple ID, search **OKX** in the App Store, and install it.
+    - This same ID also lets you download Twitter, Telegram, and other apps.
 
-**支持多种行情：**
-- 震荡、高波动
-- 单边上涨（牛市）
-- 单边下跌（熊市）
-- 所有行情适用的网格策略
-
----
-
-## 🔑 四、官方返佣福利
-
-- 填写邀请码，可享受终身 20% 官方返佣（手续费八折）
-- 不填写则没有返佣，外面承诺超过 20% 的都是骗子
-- 注册完一定要确认绑定
+### Android Download
+1. On the official website registration page, click the three bars in the upper right → scroll to the bottom and tap "Download OKX App".
+2. If installation fails:
+    - **Huawei**: Turn off "Pure Mode" and "External Source App Check"
+    - **Xiaomi**: On the install screen, tap the upper right settings icon and enable "Security Protection"
+    - **OPPO**: Disable "Payment Protection", install the app, then re-enable it
 
 ---
 
-## 🌟 五、常见问题
 
-> **比特币在中国合法吗？**
+## 💰 3. Introduction to Strategy Trading
 
-根据《2013年人民银行等五部委通知》：
-> “比特币是一种特定的虚拟商品，不具有法偿性与强制性，不是真正意义的货币。民众在自担风险前提下有参与的自由。”
+Strategy trading = using programs to automatically execute your trading plans.
 
-所以个人合法持有和交易虚拟资产是允许的。
+**Advantages:**
+    - Automatic monitoring with strict stop-loss and take-profit
+    - Diversifies risk and improves efficiency
+    - One-click trading for beginners, advanced customization for pros
+    - No extra management fees or profit-sharing
+
+**Supports multiple market conditions:**
+    - Range-bound and volatile markets
+    - Bull markets (uptrend)
+    - Bear markets (downtrend)
+    - Grid strategies adaptable to all scenarios
 
 ---
 
-## 🎯 六、入门建议
+## 🔑 4. Official Rebate Benefits
 
-拥有一个交易所账户 + 钱包 = 进入 Web3 世界的第一步。
-
-OKX 既有 C2C 平台（0 手续费充提），也有策略交易和理财产品，是新手非常适合的工具。
+    - Entering the invitation code grants you a lifetime 20% official rebate (20% fee discount).
+    - If you skip this step, you get no rebate. Any promises of over 20% rebate are scams.
+    - Be sure to confirm your rebate binding after registration.
 
 ---
 
-如需更多帮助，请联系社区支持。
+## 🌟 5. Frequently Asked Questions
+
+> **Is Bitcoin legal in China?**
+
+According to the 2013 joint notice by the People’s Bank of China and four other ministries:
+
+> “Bitcoin is a specific virtual commodity. It does not have legal tender status or mandatory acceptance. Individuals participate at their own risk.”
+
+So it is legal for individuals to hold and trade virtual assets.
+
+---
+
+## 🎯 6. Getting Started Recommendations
+
+Owning an exchange account + a wallet = the first step into the Web3 world.
+
+OKX offers C2C trading (zero-fee deposits and withdrawals), strategy trading, and financial products, making it an ideal tool for beginners.
+
+---
+
+For further assistance, please contact [Community Support: WeChat Group](https://www.cnblogs.com/ranxi169/p/18456954).
 
 `;
 
