@@ -87,7 +87,7 @@ Strategy trading = using programs to automatically execute your trading plans.
 
 According to the 2013 joint notice by the People’s Bank of China and four other ministries:
 
-> “Bitcoin is a specific virtual commodity. It does not have legal tender status or mandatory acceptance. Individuals participate at their own risk.”
+> Bitcoin is a specific virtual commodity. It does not have legal tender status or mandatory acceptance. Individuals participate at their own risk.
 
 So it is legal for individuals to hold and trade virtual assets.
 
