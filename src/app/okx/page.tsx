@@ -41,9 +41,9 @@ const content = `# OKX Registration and Beginner's Guide
 ## 📱 2. Download the App
 
 ### iOS Download
-    - Go to Taobao/Xianyu and purchase a "foreign Apple ID" for a few RMB.
-    - Sign in to the foreign Apple ID, search **OKX** in the App Store, and install it.
-    - This same ID also lets you download Twitter, Telegram, and other apps.
+- Go to Taobao/Xianyu and purchase a "foreign Apple ID" for a few RMB.
+- Sign in to the foreign Apple ID, search **OKX** in the App Store, and install it.
+- This same ID also lets you download Twitter, Telegram, and other apps.
 
 ### Android Download
 1. On the official website registration page, click the three bars in the upper right → scroll to the bottom and tap "Download OKX App".
@@ -75,9 +75,9 @@ Strategy trading = using programs to automatically execute your trading plans.
 
 ## 🔑 4. Official Rebate Benefits
 
-    - Entering the invitation code grants you a lifetime 20% official rebate (20% fee discount).
-    - If you skip this step, you get no rebate. Any promises of over 20% rebate are scams.
-    - Be sure to confirm your rebate binding after registration.
+- Entering the invitation code grants you a lifetime 20% official rebate (20% fee discount).
+- If you skip this step, you get no rebate. Any promises of over 20% rebate are scams.
+- Be sure to confirm your rebate binding after registration.
 
 ---
 
