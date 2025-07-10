@@ -155,7 +155,7 @@ OKX欧易成立于2017年，同年12月总交易额达到百亿级，位居全�
 
 欧易具备行业领先的策略库，AI驱动挖掘海量市场与交易数据，为小白用户一键生成最佳交易参数，同时提供丰富的交易参数选择，供进阶型用户深度定制交易策略，同时用户使用策略交易不收取额外费用
 
-![okxadvantage]( /images/okxStrategicAdvantage.png )
+![okxadvantage]( /images/okxstrategicadvantage.png )
 
 ### OKX欧易-行情攻略一览
 
@@ -179,3 +179,6 @@ OKX欧易成立于2017年，同年12月总交易额达到百亿级，位居全�
 
 ![okxtrading]( /images/Introductiontookxtrading.jpg )
 
+---
+
+如需更多帮助，请联系 [社区支持：微信群聊](https://www.cnblogs.com/ranxi169/p/18456954)。
