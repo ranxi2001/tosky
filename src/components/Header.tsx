@@ -19,7 +19,7 @@ interface MenuItem {
 }
 const menuItems: MenuItem[] = [
   // { name: "OKX教程", href: "/" },
-  { name: "OKX注册", href: "/okx" },
+  { name: "OKX Register", href: "/okx" },
   { name: "Blog", href: "/blog" },
   { name: "About", href: "/about" },
 ];

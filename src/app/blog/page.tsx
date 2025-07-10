@@ -13,8 +13,6 @@ const Page = async (
     const page = searchParams.page ? parseInt(searchParams.page as string) : 1;
     const result = await wisp.getPosts({ limit: 6, page });
 
-    console.log("getPosts result:", result); // 检查是否获取到博客
-
     return (
         <div className="container mx-auto px-5 mb-10">
             <Header />
