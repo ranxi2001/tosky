@@ -15,7 +15,11 @@ function getRoutes(dir: string): string[] {
 
     for (const entry of entries) {
         if (entry.isDirectory()) {
-            // 递归
+            // 如果是动态路由目录，跳过
+            if (entry.name.startsWith("[") && entry.name.endsWith("]")) {
+                continue;
+            }
+
             const subRoutes = getRoutes(path.join(dir, entry.name));
             routes.push(...subRoutes);
         } else if (
@@ -23,13 +27,13 @@ function getRoutes(dir: string): string[] {
             (entry.name === "page.tsx" || entry.name === "page.js")
         ) {
             let routePath = "/" + dir.replace(/\\/g, "/");
-            routePath = routePath.replace(/\[.*?\]/g, "example");
             routes.push(routePath);
         }
     }
 
     return routes;
 }
+
 
 export async function GET() {
     let allRoutes: string[] = [];
