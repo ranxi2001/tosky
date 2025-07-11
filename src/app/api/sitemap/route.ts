@@ -1,35 +1,30 @@
 import fs from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
+import { wisp } from "@/lib/wisp";
 
-// 定义要扫描的目录
-const directories = [
-    "about",
-    "blog",
-    "okx",
-    "static"
-];
+const directories = ["about", "blog", "okx", "static"];
 
-function getRoutes(dir: string) {
+function getRoutes(dir: string): string[] {
     const dirPath = path.join(process.cwd(), "src", "app", dir);
     if (!fs.existsSync(dirPath)) return [];
 
     const entries = fs.readdirSync(dirPath, { withFileTypes: true });
 
-    const routes: string[] = [];
+    let routes: string[] = [];
 
     for (const entry of entries) {
         if (entry.isDirectory()) {
-            // 递归子目录
+            // 递归
             const subRoutes = getRoutes(path.join(dir, entry.name));
             routes.push(...subRoutes);
         } else if (
             entry.isFile() &&
             (entry.name === "page.tsx" || entry.name === "page.js")
         ) {
-            // 去掉 "page.tsx"
-            const routePath = "/" + dir.replace(/\\/g, "/");
-            routes.push(routePath === "/about" ? "/about" : routePath);
+            let routePath = "/" + dir.replace(/\\/g, "/");
+            routePath = routePath.replace(/\[.*?\]/g, "example");
+            routes.push(routePath);
         }
     }
 
@@ -39,15 +34,21 @@ function getRoutes(dir: string) {
 export async function GET() {
     let allRoutes: string[] = [];
 
+    // 本地静态路径
     directories.forEach((dir) => {
         const routes = getRoutes(dir);
         allRoutes.push(...routes);
     });
 
-    // 去重
-    allRoutes = [...new Set(allRoutes)];
+    // 动态文章
+    const postsResult = await wisp.getPosts();
+    const dynamicRoutes = postsResult.posts.map((post) => `/blog/${post.slug}`);
+    allRoutes.push(...dynamicRoutes);
 
-    // 生成 sitemap XML
+    // 去重
+    allRoutes = [...new Set(allRoutes)].sort();
+
+    // 生成 sitemap
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allRoutes
