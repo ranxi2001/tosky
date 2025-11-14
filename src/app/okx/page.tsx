@@ -23,7 +23,7 @@ const content = `# OKX Registration and Beginner's Guide
 
     - [https://www.okx.com/join/88596413](https://www.okx.com/join/88596413)
     - [https://onefly.top/posts/8888.html](https://onefly.top/posts/8888.html)
-    - [https://www.ouyizh.net/zh-hans/join/88596413](https://www.ouyizh.net/zh-hans/join/88596413)
+    - [https://www.growthweb.systems/join/88596413](https://www.growthweb.systems/join/88596413)
     - [https://onefly.top/posts/24219.html](https://onefly.top/posts/24219.html)
 
 2. **Enter the invitation code**  
