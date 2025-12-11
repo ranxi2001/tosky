@@ -40,6 +40,7 @@ const content = `# OKX 欧易新人注册与使用教程
 
 ### iOS 下载
 - 前往某宝/某鱼购买"外区 Apple ID"，几块钱一个。
+- 或者自己注册：[台湾 Apple ID 注册教程](https://onefly.top/posts/251029.html)
 - 登录外区 ID 后，在 App Store 搜索 **OKX** 并下载。
 - 用这个账号还能下载推特、Telegram 等软件。
 
