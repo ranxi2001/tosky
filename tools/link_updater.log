@@ -11,3 +11,9 @@
 2026-01-19 11:31:41,171 - INFO - git commit 成功: chore: 自动更新注册链接为 https://www.firgrouxywebb.com/join/88596413
 2026-01-19 11:31:45,459 - INFO - git push 成功，部署将自动触发
 2026-01-19 11:31:45,459 - INFO - 链接更新完成!
+2026-01-19 11:45:11,373 - INFO - Cloudflare 更新器已初始化
+2026-01-19 11:45:18,032 - ERROR - API 请求失败: 400 Client Error: Bad Request for url: https://api.cloudflare.com/client/v4/zones/4c614822b87435f9f4f2cf4cc2688a5c/rulesets
+2026-01-19 11:45:18,032 - ERROR - 更新/创建重定向规则失败: 400 Client Error: Bad Request for url: https://api.cloudflare.com/client/v4/zones/4c614822b87435f9f4f2cf4cc2688a5c/rulesets
+2026-01-19 11:45:18,033 - ERROR - 更新 Cloudflare 失败: 400 Client Error: Bad Request for url: https://api.cloudflare.com/client/v4/zones/4c614822b87435f9f4f2cf4cc2688a5c/rulesets
+2026-01-19 11:47:48,073 - INFO - Cloudflare 更新器已初始化
+2026-01-19 11:47:53,858 - INFO - Cloudflare 重定向已更新: https://www.firgrouxywebb.com/join/88596413

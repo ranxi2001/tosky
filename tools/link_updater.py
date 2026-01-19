@@ -13,6 +13,7 @@ import re
 import requests
 from pathlib import Path
 from datetime import datetime
+from cloudflare_updater import CloudflareUpdater, load_config as load_cf_config
 
 # 配置日志
 logging.basicConfig(
@@ -54,6 +55,21 @@ class LinkUpdater:
         self.config = load_config()
         self.files = [Path(f) for f in self.config['files']]
         self.check_interval = check_interval
+
+        # 初始化 Cloudflare 更新器
+        try:
+            cf_config = load_cf_config()
+            self.cf_updater = CloudflareUpdater(
+                api_token=cf_config["api_token"],
+                zone_id=cf_config["zone_id"],
+                rule_id=cf_config.get("rule_id")
+            )
+            self.cf_config = cf_config
+            logger.info("Cloudflare 更新器已初始化")
+        except Exception as e:
+            logger.warning(f"Cloudflare 初始化失败: {e}")
+            self.cf_updater = None
+            self.cf_config = None
 
     def extract_domain_from_notion(self) -> str:
         """
@@ -129,6 +145,57 @@ class LinkUpdater:
 
         except Exception as e:
             logger.error(f"更新文件失败: {e}")
+            return False
+
+    def update_cloudflare(self, new_link: str) -> bool:
+        """
+        更新 Cloudflare 动态重定向规则
+
+        Args:
+            new_link: 新的完整链接
+
+        Returns:
+            是否更新成功
+        """
+        if not self.cf_config:
+            logger.warning("Cloudflare 配置未加载，跳过")
+            return False
+
+        try:
+            import requests
+
+            headers = {
+                "Authorization": f"Bearer {self.cf_config['api_token']}",
+                "Content-Type": "application/json"
+            }
+
+            zone_id = self.cf_config['zone_id']
+            ruleset_id = self.cf_config['ruleset_id']
+            rule_id = self.cf_config['rule_id']
+
+            # 获取当前规则集
+            url = f"https://api.cloudflare.com/client/v4/zones/{zone_id}/rulesets/{ruleset_id}"
+            resp = requests.get(url, headers=headers, timeout=30)
+            resp.raise_for_status()
+            ruleset = resp.json().get('result', {})
+
+            # 更新目标规则的 target_url
+            rules = ruleset.get('rules', [])
+            for rule in rules:
+                if rule.get('id') == rule_id:
+                    rule['action_parameters']['from_value']['target_url']['value'] = new_link
+                    break
+
+            # 提交更新
+            update_data = {"rules": rules}
+            resp = requests.put(url, headers=headers, json=update_data, timeout=30)
+            resp.raise_for_status()
+
+            logger.info(f"Cloudflare 重定向已更新: {new_link}")
+            return True
+
+        except Exception as e:
+            logger.error(f"更新 Cloudflare 失败: {e}")
             return False
 
     def git_commit_and_push(self, new_link: str) -> bool:
@@ -218,13 +285,18 @@ class LinkUpdater:
         logger.info(f"  新的: {new_link}")
 
         # 更新所有文件
-        if self.update_files(new_link):
+        files_updated = self.update_files(new_link)
+
+        # 更新 Cloudflare 重定向
+        cf_updated = self.update_cloudflare(new_link)
+
+        if files_updated:
             # 提交并推送
             if self.git_commit_and_push(new_link):
                 logger.info("链接更新完成!")
                 return True
 
-        return False
+        return files_updated or cf_updated
 
     def run(self):
         """运行持续监控"""
