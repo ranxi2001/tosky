@@ -1,251 +1,214 @@
-# 域名监控脚本
+# OKX 域名自动更新工具
 
-用于监听 Notion 页面中官方域名的切换变化。
+自动监控官方域名变化，更新网站链接并同步 Cloudflare 301 重定向规则。
 
 ## 功能特性
 
-- 🔍 **自动提取域名**: 从 Notion 页面自动提取域名 URL
-- 📊 **变化监控**: 检测域名变化并记录历史
-- 🚀 **Cloudflare 自动更新**: 检测到域名变化时自动更新 Cloudflare 301 重定向规则（可选）
-- 💾 **持久化存储**: 所有变化记录保存在 `domain_history.json`
-- 📝 **日志记录**: 详细的运行日志保存在 `domain_monitor.log`
-- ⏰ **定时检查**: 支持自定义检查间隔
-- 📋 **三种运行模式**:
-  - 单次检查
-  - 持续监控
-  - 查看历史记录
+- 🔗 **链接自动更新**: 检测域名变化后自动更新 `page.tsx` 中的注册链接
+- ☁️ **Cloudflare 同步**: 自动更新 301 重定向规则
+- 🚀 **自动部署**: git push 触发 Vercel 自动部署
+- 📝 **精确替换**: 使用配置文件记录链接，精确替换无遗漏
 
-## 安装依赖
+## 文件说明
+
+| 文件 | 说明 |
+|------|------|
+| `link_updater.py` | 主脚本 - 更新链接 + Cloudflare + Git 推送 |
+| `link_config.json` | 链接配置（当前链接、目标文件列表） |
+| `cloudflare_config.json` | Cloudflare API 配置 |
+| `domain_monitor.py` | 域名监控基础类 |
+| `cloudflare_updater.py` | Cloudflare API 封装 |
+
+## 快速开始
+
+### 1. 安装依赖
 
 ```bash
 pip install requests
 ```
 
-## 使用方法
+### 2. 配置文件
 
-### 基本使用
+复制示例配置并填入实际值：
 
 ```bash
-python domain_monitor.py
+cp link_config.json.example link_config.json
+cp cloudflare_config.json.example cloudflare_config.json
 ```
 
-运行后会出现交互式菜单:
-
-```
-请选择运行模式:
-1. 单次检查 - 立即检查一次当前域名
-2. 持续监控 - 定期检查域名变化
-3. 查看历史记录
-```
-
-### 模式说明
-
-#### 1. 单次检查模式
-
-- 立即访问 Notion 页面
-- 提取当前域名
-- 显示结果并退出
-- 适合快速查看当前域名
-
-#### 2. 持续监控模式
-
-- 按设定间隔持续检查
-- 自动检测域名变化
-- 发现变化时会有警告提示
-- 按 `Ctrl+C` 停止监控
-- 适合长期监控域名变化
-
-#### 3. 查看历史记录
-
-- 显示所有域名变化历史
-- 包括时间、域名和变化类型
-- 无需访问网络
-
-## 配置说明
-
-### 检查间隔
-
-默认检查间隔为 **300 秒（5 分钟）**，可以在运行时自定义:
-
-```
-请输入检查间隔（秒，默认300秒/5分钟，直接回车使用默认值）: 60
-```
-
-### Notion 页面 URL
-
-当前监控的 Notion 页面:
-```
-https://conscious-meerkat-b7e.notion.site/APK-www-firgrouxywebb-com-join-df0b826aa4b840fea1aa4f351529afd1
-```
-
-如需修改，请编辑脚本中的 `NOTION_URL` 变量。
-
-### 预期域名格式
-
-脚本会尝试提取以下格式的域名:
-- `www.xxx.com/join/`
-- `https://www.xxx.com/join/`
-
-## 输出文件
-
-### domain_history.json
-
-JSON 格式的历史记录文件，示例:
-
+**link_config.json**:
 ```json
-[
-  {
-    "timestamp": "2026-01-19T15:45:30.123456",
-    "domain": "https://www.firgrouxywebb.com/join/",
-    "change_type": "首次检测"
-  },
-  {
-    "timestamp": "2026-01-20T10:30:15.654321",
-    "domain": "https://www.newdomain.com/join/",
-    "change_type": "域名从 https://www.firgrouxywebb.com/join/ 变更"
-  }
-]
+{
+  "current_link": "https://www.example.com/join/88596413",
+  "invite_code": "88596413",
+  "files": [
+    "/home/tosky/src/app/page.tsx",
+    "/home/tosky/src/app/okx/page.tsx"
+  ],
+  "notion_url": "https://conscious-meerkat-b7e.notion.site/APK-www-xxx-com-join-xxx",
+  "last_updated": null
+}
 ```
 
-### domain_monitor.log
-
-文本格式的运行日志，包含所有检查活动和错误信息。
-
-## 工作原理
-
-1. **访问 Notion 页面**: 使用模拟浏览器的请求头访问页面
-2. **提取域名**: 使用多个正则表达式匹配域名
-3. **规范化处理**: 确保域名格式统一（https:// 前缀，/join/ 后缀）
-4. **变化检测**: 对比当前域名与上次检查的域名
-5. **记录保存**: 将所有变化保存到历史文件
-
-## 示例输出
-
-### 首次检测
-
-```
-2026-01-19 15:45:30 - INFO - 开始监控域名变化...
-2026-01-19 15:45:30 - INFO - 正在访问 Notion 页面...
-2026-01-19 15:45:31 - INFO - 提取到域名: https://www.firgrouxywebb.com/join/
-2026-01-19 15:45:31 - INFO - 首次检测到域名: https://www.firgrouxywebb.com/join/
+**cloudflare_config.json**:
+```json
+{
+  "api_token": "your_cloudflare_api_token",
+  "zone_id": "your_zone_id",
+  "ruleset_id": "your_ruleset_id",
+  "rule_id": "your_rule_id",
+  "source_pattern": "(http.request.full_uri wildcard r\"https://onefly.top/posts/8888.html\")",
+  "redirect_suffix": "/join/88596413"
+}
 ```
 
-### 检测到变化
+### 3. 运行脚本
 
-```
-2026-01-20 10:30:15 - WARNING - ⚠️ 域名发生变化!
-2026-01-20 10:30:15 - WARNING - 旧域名: https://www.firgrouxywebb.com/join/
-2026-01-20 10:30:15 - WARNING - 新域名: https://www.newdomain.com/join/
-```
-
-## 故障排除
-
-### 无法提取域名
-
-- 检查网络连接
-- 确认 Notion 页面可访问
-- 查看 `domain_monitor.log` 了解详细错误信息
-
-### 请求超时
-
-- 增加超时时间（修改脚本中的 `timeout=30` 参数）
-- 检查网络稳定性
-
-### 历史记录损坏
-
-- 删除 `domain_history.json` 文件
-- 重新运行脚本将创建新的历史记录
-
-## Cloudflare 自动更新（可选）
-
-### 功能说明
-
-当启用此功能后，脚本检测到域名变化时会自动调用 Cloudflare API 更新 301 重定向规则。
-
-**工作原理**：
-- 从 Notion 页面提取**基础域名**（如 `https://www.firgrouxywebb.com`）
-- 自动拼接**固定后缀** `/join/88596413`
-- 更新 Cloudflare 重定向规则为完整 URL（如 `https://www.firgrouxywebb.com/join/88596413`）
-
-**应用场景**：
-- 您在 Cloudflare 托管了一个域名（如 `onefly.top`）
-- 当官方域名变化时（只有主域名部分变化，路径固定）
-- 自动将访问重定向到最新域名 + 固定后缀
-- 无需手动登录 Cloudflare 更改规则
-
-**示例**：
-```
-Notion 显示: www-newdomain-com-join
-提取基础域名: https://www.newdomain.com
-拼接后缀: /join/88596413
-最终重定向: https://www.newdomain.com/join/88596413
+```bash
+cd /home/tosky/tools
+python3 link_updater.py
 ```
 
-### 快速配置
+选择运行模式：
+- **1** - 单次检查并更新
+- **2** - 持续监控模式
 
-1. **运行配置助手**：
-   ```bash
-   双击 setup_cloudflare.bat
-   ```
-   
-2. **按提示输入**：
-   - Cloudflare API Token
-   - Zone ID
-   - 源域名匹配模式
+## 工作流程
 
-3. **测试配置**：
-   ```bash
-   python cloudflare_updater.py
-   ```
+```
+1. 从 Notion URL 标题提取最新域名
+   URL: APK-www-newdomain-com-join-xxx
+   提取: www.newdomain.com
 
-4. **启用监控**：
-   ```bash
-   python domain_monitor.py
-   # 选择：启用 Cloudflare (y)
-   # 选择：持续监控 (2)
-   ```
+2. 构建完整链接
+   https://www.newdomain.com/join/88596413
 
-### 详细配置
+3. 更新文件（精确替换）
+   - src/app/page.tsx
+   - src/app/okx/page.tsx
 
-完整配置步骤请查看：[CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md)
+4. 更新 Cloudflare 301 重定向
+   From: https://onefly.top/posts/8888.html
+   To:   https://www.newdomain.com/join/88596413
 
-包含内容：
-- 如何获取 API Token
-- 如何获取 Zone ID
-- 匹配模式语法
-- 故障排除
-- 完整示例
-
-## 高级用法
-
-### 在后台运行（Windows）
-
-使用 PowerShell:
-
-```powershell
-Start-Process python -ArgumentList "domain_monitor.py" -WindowStyle Hidden
+5. Git 提交并推送
+   自动触发 Vercel 部署
 ```
 
-### 定时任务（Windows 任务计划程序）
+## 服务器定时任务
 
-1. 打开任务计划程序
-2. 创建基本任务
-3. 触发器设置为系统启动时
-4. 操作选择启动程序: `python.exe`
-5. 参数: `C:\Users\ranxi\Desktop\OKX注册\tosky\tools\domain_monitor.py`
+### 每 4 小时自动运行一次
+
+```bash
+# 编辑 crontab
+crontab -e
+
+# 添加以下行（每 4 小时运行一次）
+0 */4 * * * cd /home/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /home/tosky/tools/cron.log 2>&1
+```
+
+### 其他定时选项
+
+```bash
+# 每小时运行
+0 * * * * cd /home/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /home/tosky/tools/cron.log 2>&1
+
+# 每 6 小时运行
+0 */6 * * * cd /home/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /home/tosky/tools/cron.log 2>&1
+
+# 每天凌晨 2 点运行
+0 2 * * * cd /home/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /home/tosky/tools/cron.log 2>&1
+```
+
+### 查看定时任务
+
+```bash
+# 查看当前 crontab
+crontab -l
+
+# 查看运行日志
+tail -f /home/tosky/tools/cron.log
+```
+
+## 日志示例
+
+```
+==================================================
+链接自动更新脚本启动
+当前链接: https://www.firgrouxywebb.com/join/88596413
+==================================================
+
+检测到链接变化:
+  当前: https://www.oldomain.com/join/88596413
+  新的: https://www.newdomain.com/join/88596413
+
+已更新: /home/tosky/src/app/page.tsx
+已更新: /home/tosky/src/app/okx/page.tsx
+共更新 2 个文件
+
+==================================================
+Cloudflare 301 重定向规则更新成功
+--------------------------------------------------
+Rule name: okx
+From: https://onefly.top/posts/8888.html
+To:   https://www.newdomain.com/join/88596413
+Status: 301 Permanent Redirect
+==================================================
+
+git commit 成功: chore: 自动更新注册链接为 https://www.newdomain.com/join/88596413
+git push 成功，部署将自动触发
+链接更新完成!
+```
+
+## 手动触发更新
+
+如果需要手动更新（不等待定时任务）：
+
+```bash
+cd /home/tosky/tools
+
+# 方式1: 交互模式
+python3 link_updater.py
+
+# 方式2: 直接运行
+python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()"
+
+# 方式3: 只更新 Cloudflare
+python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.update_cloudflare(u.config['current_link'])"
+```
+
+## 更新域名源
+
+当 Notion 页面 URL 变化时，需要更新 `link_config.json` 中的 `notion_url`：
+
+```bash
+# 编辑配置
+nano /home/tosky/tools/link_config.json
+
+# 修改 notion_url 为新的 URL
+# "notion_url": "https://xxx.notion.site/APK-www-newdomain-com-join-xxx"
+
+# 然后运行脚本
+python3 link_updater.py
+```
 
 ## 注意事项
 
-- 确保有稳定的网络连接
-- 不要设置过短的检查间隔（建议 ≥ 60 秒）
-- 定期查看日志文件，避免磁盘空间占用过多
-- Notion 页面可能需要登录或有访问限制
+- ⚠️ `cloudflare_config.json` 和 `link_config.json` 包含敏感信息，已加入 `.gitignore`
+- 🔒 请勿将配置文件提交到公开仓库
+- 📋 首次使用请复制 `.example` 文件并填入实际配置
 
 ## 更新日志
 
+### v2.0.0 (2026-01-19)
+- ✨ 新增 `link_updater.py` 一站式更新脚本
+- ✨ 支持多文件批量更新
+- ✨ 集成 Cloudflare 动态重定向更新
+- ✨ 使用配置文件精确替换链接
+- ✨ 自动 git commit + push
+- 🔒 敏感配置文件加入 .gitignore
+
 ### v1.0.0 (2026-01-19)
-- ✨ 初始版本
+- ✨ 初始版本 domain_monitor.py
 - ✨ 支持从 Notion 页面提取域名
 - ✨ 支持域名变化监控
-- ✨ 支持历史记录保存和查看
-- ✨ 支持三种运行模式
