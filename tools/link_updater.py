@@ -191,7 +191,14 @@ class LinkUpdater:
             resp = requests.put(url, headers=headers, json=update_data, timeout=30)
             resp.raise_for_status()
 
-            logger.info(f"Cloudflare 重定向已更新: {new_link}")
+            logger.info("=" * 50)
+            logger.info("Cloudflare 301 重定向规则更新成功")
+            logger.info("-" * 50)
+            logger.info("Rule name: okx")
+            logger.info("From: https://onefly.top/posts/8888.html")
+            logger.info(f"To:   {new_link}")
+            logger.info("Status: 301 Permanent Redirect")
+            logger.info("=" * 50)
             return True
 
         except Exception as e:
