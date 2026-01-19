@@ -52,7 +52,7 @@ class LinkUpdater:
             check_interval: 检查间隔（秒）
         """
         self.config = load_config()
-        self.page_tsx_path = Path(self.config['page_tsx_path'])
+        self.files = [Path(f) for f in self.config['files']]
         self.check_interval = check_interval
 
     def extract_domain_from_notion(self) -> str:
@@ -81,9 +81,9 @@ class LinkUpdater:
             logger.error(f"提取域名失败: {e}")
             return None
 
-    def update_page_tsx(self, new_link: str) -> bool:
+    def update_files(self, new_link: str) -> bool:
         """
-        更新 page.tsx 中的链接（精确替换）
+        更新所有文件中的链接（精确替换）
 
         Args:
             new_link: 新的完整链接
@@ -93,18 +93,27 @@ class LinkUpdater:
         """
         try:
             old_link = self.config['current_link']
-            content = self.page_tsx_path.read_text(encoding='utf-8')
+            updated_count = 0
 
-            if old_link not in content:
-                logger.error(f"在 page.tsx 中找不到旧链接: {old_link}")
-                return False
+            for file_path in self.files:
+                if not file_path.exists():
+                    logger.warning(f"文件不存在: {file_path}")
+                    continue
 
-            # 精确替换
-            new_content = content.replace(old_link, new_link)
+                content = file_path.read_text(encoding='utf-8')
 
-            if new_content != content:
-                self.page_tsx_path.write_text(new_content, encoding='utf-8')
-                logger.info(f"page.tsx 已更新")
+                if old_link not in content:
+                    logger.info(f"文件中没有旧链接: {file_path.name}")
+                    continue
+
+                # 精确替换
+                new_content = content.replace(old_link, new_link)
+                file_path.write_text(new_content, encoding='utf-8')
+                logger.info(f"已更新: {file_path}")
+                updated_count += 1
+
+            if updated_count > 0:
+                logger.info(f"共更新 {updated_count} 个文件")
                 logger.info(f"  旧链接: {old_link}")
                 logger.info(f"  新链接: {new_link}")
 
@@ -112,15 +121,14 @@ class LinkUpdater:
                 self.config['current_link'] = new_link
                 self.config['last_updated'] = datetime.now().isoformat()
                 save_config(self.config)
-                logger.info("配置文件已更新")
 
                 return True
             else:
-                logger.info("page.tsx 内容未变化")
+                logger.info("没有文件需要更新")
                 return False
 
         except Exception as e:
-            logger.error(f"更新 page.tsx 失败: {e}")
+            logger.error(f"更新文件失败: {e}")
             return False
 
     def git_commit_and_push(self, new_link: str) -> bool:
@@ -134,11 +142,12 @@ class LinkUpdater:
             是否成功
         """
         try:
-            repo_path = self.page_tsx_path.parent.parent.parent
+            repo_path = Path("/home/tosky")
 
-            # git add page.tsx 和 config
+            # git add 所有文件和 config
+            files_to_add = [str(f) for f in self.files] + [str(CONFIG_PATH)]
             subprocess.run(
-                ['git', 'add', str(self.page_tsx_path), str(CONFIG_PATH)],
+                ['git', 'add'] + files_to_add,
                 cwd=repo_path,
                 capture_output=True,
                 text=True,
@@ -208,8 +217,8 @@ class LinkUpdater:
         logger.info(f"  当前: {current_link}")
         logger.info(f"  新的: {new_link}")
 
-        # 更新 page.tsx
-        if self.update_page_tsx(new_link):
+        # 更新所有文件
+        if self.update_files(new_link):
             # 提交并推送
             if self.git_commit_and_push(new_link):
                 logger.info("链接更新完成!")
