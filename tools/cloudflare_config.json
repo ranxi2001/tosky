@@ -1,0 +1,7 @@
+{
+  "api_token": "67tkCp51nMje4C6hnGg8QBMfFnI6pty8xopAdo5_",
+  "zone_id": "4c614822b87435f9f4f2cf4cc2688a5c",
+  "rule_id": "",
+  "source_pattern": "http.host eq \"onefly.top\"",
+  "redirect_suffix": "/join/88596413"
+}

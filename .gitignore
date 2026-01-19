@@ -15,7 +15,7 @@
 
 # production
 /build
-
+/__pycache__
 # misc
 .DS_Store
 *.pem

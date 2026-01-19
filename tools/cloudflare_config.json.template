@@ -1,0 +1,15 @@
+{
+  "_comment": "Cloudflare API 配置文件",
+  "api_token": "YOUR_CLOUDFLARE_API_TOKEN",
+  "zone_id": "YOUR_ZONE_ID",
+  "rule_id": "",
+  "source_pattern": "http.host eq \"onefly.top\"",
+  "redirect_suffix": "/join/88596413",
+  "_instructions": {
+    "api_token": "在 Cloudflare 控制台创建 API Token，需要 Zone.Zone Settings.Edit 和 Zone.Dynamic Redirect.Edit 权限",
+    "zone_id": "在 Cloudflare 域名overview页面右侧可以找到 Zone ID",
+    "rule_id": "可选，如果要更新现有规则请填写规则ID，留空则创建新规则",
+    "source_pattern": "源URL匹配模式，例如: http.host eq \"onefly.top\" 表示匹配 onefly.top 域名的所有请求",
+    "redirect_suffix": "重定向URL的固定后缀，会自动拼接到提取的基础域名后面，例如: /join/88596413"
+  }
+}
