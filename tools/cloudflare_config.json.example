@@ -1,0 +1,8 @@
+{
+  "api_token": "your_cloudflare_api_token",
+  "zone_id": "your_zone_id",
+  "ruleset_id": "your_ruleset_id",
+  "rule_id": "your_rule_id",
+  "source_pattern": "(http.request.full_uri wildcard r\"https://example.com/path\")",
+  "redirect_suffix": "/join/your_invite_code"
+}

@@ -1,0 +1,10 @@
+{
+  "current_link": "https://www.example.com/join/your_invite_code",
+  "invite_code": "your_invite_code",
+  "files": [
+    "/path/to/src/app/page.tsx",
+    "/path/to/src/app/okx/page.tsx"
+  ],
+  "notion_url": "https://your-notion-page-url",
+  "last_updated": null
+}

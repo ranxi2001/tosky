@@ -30,6 +30,11 @@ yarn-error.log*
 .env*.local
 .env
 
+# sensitive config
+tools/cloudflare_config.json
+tools/link_config.json
+tools/*.log
+
 # vercel
 .vercel
 
