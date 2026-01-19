@@ -21,7 +21,7 @@ const content = `# OKX 欧易新人注册与使用教程
    > 这是官方注册链接，确保安全可靠。
 
    - [https://onefly.top/posts/8888.html](https://onefly.top/posts/8888.html)
-   - [https://www.growthweb.systems/join/88596413](https://www.growthweb.systems/join/88596413)
+   - [https://www.firgrouxywebb.com/join/88596413](https://www.firgrouxywebb.com/join/88596413)
    - [https://www.okx.com/join/88596413](https://www.okx.com/join/88596413)
    - [https://onefly.top/posts/24219.html](https://onefly.top/posts/24219.html)
 
