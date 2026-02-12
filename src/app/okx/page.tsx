@@ -24,7 +24,7 @@ const content = `# OKX Registration and Beginner's Guide
     - [https://www.okx.com/join/88596413](https://www.okx.com/join/88596413)
     - [https://onefly.top/posts/8888.html](https://onefly.top/posts/8888.html)
     - [https://www.firgrouxywebb.com/join/88596413](https://www.firgrouxywebb.com/join/88596413)
-    - [https://onefly.top/posts/24219.html](https://onefly.top/posts/24219.html)
+    - [https://onefly.top/posts/okx-bitcoin-trading-guide.html](https://onefly.top/posts/okx-bitcoin-trading-guide.html)
 
 2. **Enter the invitation code**  
     - You *must* enter the invitation code to enjoy the lifetime 20% official fee rebate and community benefits.

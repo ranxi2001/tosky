@@ -23,7 +23,7 @@ const content = `# OKX 欧易新人注册与使用教程
    - [https://onefly.top/posts/8888.html](https://onefly.top/posts/8888.html)
    - [https://www.firgrouxywebb.com/join/88596413](https://www.firgrouxywebb.com/join/88596413)
    - [https://www.okx.com/join/88596413](https://www.okx.com/join/88596413)
-   - [https://onefly.top/posts/24219.html](https://onefly.top/posts/24219.html)
+   - [https://onefly.top/posts/okx-bitcoin-trading-guide.html](https://onefly.top/posts/okx-bitcoin-trading-guide.html)
 
 2. **填写邀请码**  
    - 一定要填写邀请码，否则无法享受终身 20% 官方返佣和社区福利。
