@@ -47,6 +47,18 @@ export function GET({ props }: { props: SlugProps }) {
     ...(data.startsAt ? [`startsAt: ${JSON.stringify(data.startsAt.toISOString())}`] : []),
     ...(data.expiresAt ? [`expiresAt: ${JSON.stringify(data.expiresAt.toISOString())}`] : []),
     ...(data.affiliateKey ? [`affiliateKey: ${JSON.stringify(data.affiliateKey)}`] : []),
+    ...(data.syncProvider ? [`syncProvider: ${JSON.stringify(data.syncProvider)}`] : []),
+    ...(data.syncSourceId ? [`syncSourceId: ${JSON.stringify(data.syncSourceId)}`] : []),
+    ...(data.syncSourceUrl ? [`syncSourceUrl: ${JSON.stringify(data.syncSourceUrl)}`] : []),
+    ...(data.syncSourcePublishedAt
+      ? [`syncSourcePublishedAt: ${JSON.stringify(data.syncSourcePublishedAt.toISOString())}`]
+      : []),
+    ...(data.syncSourceUpdatedAt
+      ? [`syncSourceUpdatedAt: ${JSON.stringify(data.syncSourceUpdatedAt.toISOString())}`]
+      : []),
+    ...(data.syncSourceHash
+      ? [`syncSourceHash: ${JSON.stringify(data.syncSourceHash)}`]
+      : []),
     `editorialQa: ${JSON.stringify(data.editorialQa)}`,
     `sources: ${JSON.stringify(data.sources)}`,
     `canonical: ${JSON.stringify(new URL(item.url, config.site).href)}`,

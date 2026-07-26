@@ -51,6 +51,12 @@ export const collections = {
             }),
           )
           .default([]),
+        syncProvider: z.literal("okx").optional(),
+        syncSourceId: z.string().trim().min(1).optional(),
+        syncSourceUrl: z.url().optional(),
+        syncSourcePublishedAt: z.coerce.date().optional(),
+        syncSourceUpdatedAt: z.coerce.date().optional(),
+        syncSourceHash: z.string().regex(/^sha256:[a-f0-9]{64}$/u).optional(),
         legacyWispId: z.string().optional(),
       },
     }),

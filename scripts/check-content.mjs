@@ -49,6 +49,7 @@ const affiliateQueryKeys = new Set([
 
 const errors = [];
 const warnings = [];
+const seenSyncSourceIds = new Map();
 
 function report(list, file, message, line) {
   const relative = path.relative(projectRoot, file).replaceAll(path.sep, "/");
@@ -313,6 +314,81 @@ async function validateFile(file, affiliateData, now) {
   for (const field of ["tags", "regions", "editorialQa", "sources"]) {
     const entry = fields.get(field);
     if (entry && !isList(entry)) report(errors, file, `${field} 必须是 YAML 数组`, entry.line);
+  }
+
+  const syncFieldNames = [
+    "syncProvider",
+    "syncSourceId",
+    "syncSourceUrl",
+    "syncSourcePublishedAt",
+    "syncSourceUpdatedAt",
+    "syncSourceHash",
+  ];
+  const presentSyncFields = syncFieldNames.filter((name) => fields.has(name));
+  if (presentSyncFields.length > 0 && presentSyncFields.length !== syncFieldNames.length) {
+    const missing = syncFieldNames.filter((name) => !fields.has(name));
+    report(errors, file, `同步文章缺少元数据字段：${missing.join(", ")}`);
+  }
+  if (presentSyncFields.length > 0) {
+    const provider = scalar(fields.get("syncProvider"));
+    const sourceId = scalar(fields.get("syncSourceId"));
+    const sourceUrl = scalar(fields.get("syncSourceUrl"));
+    const sourceHash = scalar(fields.get("syncSourceHash"));
+
+    if (provider !== "okx") {
+      report(errors, file, "syncProvider 目前只支持 okx", fields.get("syncProvider")?.line);
+    }
+    if (!/^[a-z0-9](?:[a-z0-9-]{0,198}[a-z0-9])?$/u.test(sourceId ?? "")) {
+      report(errors, file, "syncSourceId 必须是有效的 OKX 官方 ID", fields.get("syncSourceId")?.line);
+    } else if (seenSyncSourceIds.has(sourceId)) {
+      report(
+        errors,
+        file,
+        `syncSourceId 与 ${seenSyncSourceIds.get(sourceId)} 重复：${sourceId}`,
+        fields.get("syncSourceId")?.line,
+      );
+    } else {
+      seenSyncSourceIds.set(sourceId, path.relative(projectRoot, file).replaceAll(path.sep, "/"));
+    }
+
+    let officialUrl;
+    try {
+      officialUrl = new URL(sourceUrl);
+    } catch {
+      report(errors, file, "syncSourceUrl 不是有效 URL", fields.get("syncSourceUrl")?.line);
+    }
+    if (
+      officialUrl &&
+      (officialUrl.protocol !== "https:" ||
+        officialUrl.hostname !== "www.okx.com" ||
+        !/^\/help\/[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(officialUrl.pathname) ||
+        officialUrl.search ||
+        officialUrl.hash)
+    ) {
+      report(
+        errors,
+        file,
+        "syncSourceUrl 必须是无跟踪参数的 OKX 官方 HTTPS 帮助页",
+        fields.get("syncSourceUrl")?.line,
+      );
+    }
+    if (!/^sha256:[a-f0-9]{64}$/u.test(sourceHash ?? "")) {
+      report(errors, file, "syncSourceHash 格式无效", fields.get("syncSourceHash")?.line);
+    }
+    parseDate(fields.get("syncSourcePublishedAt"), file, "syncSourcePublishedAt");
+    parseDate(fields.get("syncSourceUpdatedAt"), file, "syncSourceUpdatedAt");
+    if (category !== "campaign") {
+      report(errors, file, "OKX 同步文章的 category 必须是 campaign", fields.get("category")?.line);
+    }
+    if (scalar(fields.get("exchange")) !== "OKX") {
+      report(errors, file, "OKX 同步文章的 exchange 必须是 OKX", fields.get("exchange")?.line);
+    }
+    const sourcesText = [fields.get("sources")?.raw, ...(fields.get("sources")?.block ?? [])].join(
+      "\n",
+    );
+    if (sourceUrl && !sourcesText.includes(sourceUrl)) {
+      report(errors, file, "sources 必须保留 syncSourceUrl 对应的官方来源", fields.get("sources")?.line);
+    }
   }
 
   const editorialQa = fields.get("editorialQa");

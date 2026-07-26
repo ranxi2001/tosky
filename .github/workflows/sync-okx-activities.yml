@@ -1,0 +1,217 @@
+name: Sync OKX official activities
+
+on:
+  schedule:
+    - cron: "17 1,7,13,19 * * *"
+      timezone: "Asia/Shanghai"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate the sync without pushing or opening a PR
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: okx-official-activity-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Build indexable activity PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out main
+        # actions/checkout v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        # actions/setup-node v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Restore the open automation PR state
+        id: prepare
+        env:
+          BRANCH: automation/okx-activity-sync
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_sha=""
+          if git fetch --no-tags origin "refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}" 2>/dev/null; then
+            remote_sha="$(git rev-parse "refs/remotes/origin/${BRANCH}")"
+          fi
+
+          pr_number="$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --state open --json number --jq '.[0].number // empty')"
+          has_open_pr=false
+          max_new=1
+          if [[ -n "$remote_sha" && -n "$pr_number" ]]; then
+            has_open_pr=true
+            max_new=0
+            git show "${remote_sha}:src/data/okx-activity-sync.json" > src/data/okx-activity-sync.json
+            node --input-type=module -e '
+              import { readFileSync } from "node:fs";
+              const state = JSON.parse(readFileSync(process.argv[1], "utf8"));
+              for (const item of state.items) {
+                if (!item.articleSlug) continue;
+                if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(item.articleSlug)) {
+                  throw new Error(`Invalid articleSlug: ${item.articleSlug}`);
+                }
+                console.log(item.articleSlug);
+              }
+            ' src/data/okx-activity-sync.json > "$RUNNER_TEMP/okx-article-slugs.txt"
+            while IFS= read -r slug; do
+              [[ -n "$slug" ]] || continue
+              git show "${remote_sha}:src/content/blog/${slug}.md" > "src/content/blog/${slug}.md"
+            done < "$RUNNER_TEMP/okx-article-slugs.txt"
+          fi
+
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "remote_sha=$remote_sha" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "has_open_pr=$has_open_pr" >> "$GITHUB_OUTPUT"
+          echo "max_new=$max_new" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync official activity data
+        id: sync
+        env:
+          REPORT_PATH: ${{ runner.temp }}/okx-sync-report.json
+          MAX_NEW: ${{ steps.prepare.outputs.max_new }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run sync:okx -- --pages 3 --max-new "$MAX_NEW" --report "$REPORT_PATH"
+          for key in fetched discovered eligibleDiscovered updated articlesCreated pending; do
+            echo "$key=$(jq -r ".$key" "$REPORT_PATH")" >> "$GITHUB_OUTPUT"
+          done
+
+          {
+            echo "### OKX 官方活动同步"
+            echo "- 抓取记录：$(jq -r .fetched "$REPORT_PATH")"
+            echo "- 新发现：$(jq -r .discovered "$REPORT_PATH")"
+            echo "- 符合活动关键词：$(jq -r .eligibleDiscovered "$REPORT_PATH")"
+            echo "- 官方元数据更新：$(jq -r .updated "$REPORT_PATH")"
+            echo "- 新建可收录文章：$(jq -r .articlesCreated "$REPORT_PATH")"
+            echo "- 队列待处理：$(jq -r .pending "$REPORT_PATH")"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run repository checks
+        run: npm run check
+
+      - name: Stage and compare generated files
+        id: changes
+        env:
+          ARTICLES_CREATED: ${{ steps.sync.outputs.articlesCreated }}
+          HAS_OPEN_PR: ${{ steps.prepare.outputs.has_open_pr }}
+          REMOTE_SHA: ${{ steps.prepare.outputs.remote_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r line; do
+            [[ -n "$line" ]] || continue
+            file="${line:3}"
+            case "$file" in
+              src/data/okx-activity-sync.json|src/content/blog/okx-event-*.md) ;;
+              *) echo "::error::同步任务产生了未授权路径变更：$file"; exit 1 ;;
+            esac
+          done < <(git status --porcelain=v1 --untracked-files=all)
+
+          shopt -s nullglob
+          article_files=(src/content/blog/okx-event-*.md)
+          git add -- src/data/okx-activity-sync.json "${article_files[@]}"
+
+          if [[ "$ARTICLES_CREATED" == "0" && "$HAS_OPEN_PR" != "true" ]]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "没有新的可收录活动文章，不创建仅含同步状态的 PR。" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          comparison=HEAD
+          if [[ "$HAS_OPEN_PR" == "true" ]]; then comparison="$REMOTE_SHA"; fi
+          if git diff --cached --quiet "$comparison" -- src/data/okx-activity-sync.json ':(glob)src/content/blog/okx-event-*.md'; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create short-lived GitHub App token
+        id: app-token
+        if: steps.changes.outputs.changed == 'true' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        # actions/create-github-app-token v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+        with:
+          client-id: ${{ vars.OKX_SYNC_APP_CLIENT_ID }}
+          private-key: ${{ secrets.OKX_SYNC_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Push automation branch and create or update draft PR
+        if: steps.changes.outputs.changed == 'true' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        env:
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          BRANCH: ${{ steps.prepare.outputs.branch }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.prepare.outputs.pr_number }}
+          REMOTE_SHA: ${{ steps.prepare.outputs.remote_sha }}
+          FETCHED: ${{ steps.sync.outputs.fetched }}
+          DISCOVERED: ${{ steps.sync.outputs.discovered }}
+          UPDATED: ${{ steps.sync.outputs.updated }}
+          ARTICLES_CREATED: ${{ steps.sync.outputs.articlesCreated }}
+          PENDING: ${{ steps.sync.outputs.pending }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          bot_user="${APP_SLUG}[bot]"
+          bot_id="$(gh api "/users/${bot_user}" --jq .id)"
+          git config user.name "$bot_user"
+          git config user.email "${bot_id}+${bot_user}@users.noreply.github.com"
+          gh auth setup-git
+
+          git switch -C "$BRANCH"
+          git commit -m "content: sync OKX official activity"
+          if [[ -n "$REMOTE_SHA" ]]; then
+            git push --force-with-lease="refs/heads/${BRANCH}:${REMOTE_SHA}" origin "HEAD:refs/heads/${BRANCH}"
+          else
+            git push origin "HEAD:refs/heads/${BRANCH}"
+          fi
+
+          pr_body="$RUNNER_TEMP/okx-sync-pr.md"
+          {
+            echo "## 自动同步摘要"
+            echo
+            echo "本 PR 从 [OKX 官方 Latest events](https://www.okx.com/help/section/latest-events) 生成可索引活动页；合并后才会发布。"
+            echo
+            echo "- 抓取记录：$FETCHED"
+            echo "- 新发现：$DISCOVERED"
+            echo "- 官方元数据更新：$UPDATED"
+            echo "- 新建可收录文章：$ARTICLES_CREATED"
+            echo "- 队列待处理：$PENDING"
+            echo "- 校验：\`npm run check\` 已通过"
+            echo
+            echo "合并前请核对活动截止时间、地区、资格和奖励；自动化不会写入返佣链接，也不会覆盖已生成文章的人工编辑。"
+            echo
+            echo "运行记录：$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          } > "$pr_body"
+
+          if [[ -n "$PR_NUMBER" ]]; then
+            gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --title "content: 同步 OKX 官方活动" --body-file "$pr_body"
+          else
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --draft --title "content: 同步 OKX 官方活动" --body-file "$pr_body"
+          fi
+
+      - name: Report dry-run result
+        if: steps.changes.outputs.changed == 'true' && github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        run: echo "Dry run completed; generated changes passed npm run check and were not pushed." >> "$GITHUB_STEP_SUMMARY"

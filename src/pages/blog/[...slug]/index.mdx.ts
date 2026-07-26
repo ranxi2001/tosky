@@ -47,6 +47,18 @@ export function GET({ props }: { props: SlugProps }) {
     ...(data.chain ? [`chain: ${JSON.stringify(data.chain)}`] : []),
     `regions: ${JSON.stringify(data.regions)}`,
     ...(data.affiliateKey ? [`affiliateKey: ${JSON.stringify(data.affiliateKey)}`] : []),
+    ...(data.syncProvider ? [`syncProvider: ${JSON.stringify(data.syncProvider)}`] : []),
+    ...(data.syncSourceId ? [`syncSourceId: ${JSON.stringify(data.syncSourceId)}`] : []),
+    ...(data.syncSourceUrl ? [`syncSourceUrl: ${JSON.stringify(data.syncSourceUrl)}`] : []),
+    ...(data.syncSourcePublishedAt
+      ? [`syncSourcePublishedAt: ${JSON.stringify(data.syncSourcePublishedAt.toISOString())}`]
+      : []),
+    ...(data.syncSourceUpdatedAt
+      ? [`syncSourceUpdatedAt: ${JSON.stringify(data.syncSourceUpdatedAt.toISOString())}`]
+      : []),
+    ...(data.syncSourceHash
+      ? [`syncSourceHash: ${JSON.stringify(data.syncSourceHash)}`]
+      : []),
     ...(data.riskDisclosure
       ? [`riskDisclosure: ${JSON.stringify(data.riskDisclosure)}`]
       : []),

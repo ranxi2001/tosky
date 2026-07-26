@@ -12,8 +12,10 @@
     "lint:docs:fix": "nimbus-docs lint --fix",
     "check:content": "node scripts/check-content.mjs",
     "check:production": "node scripts/check-production.mjs",
-    "check": "npm run typecheck && npm run lint:docs && npm run check:content && npm run build",
+    "test:okx-sync": "node --test tests/okx-activity-sync.test.mjs",
+    "check": "npm run test:okx-sync && npm run typecheck && npm run lint:docs && npm run check:content && npm run build",
     "new:post": "node scripts/new-post.mjs",
+    "sync:okx": "node scripts/sync-okx-activities.mjs",
     "preview:cf": "npm run build && wrangler dev",
     "predeploy": "npm run check",
     "deploy": "wrangler deploy"

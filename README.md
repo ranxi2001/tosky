@@ -108,6 +108,28 @@ noindex: false
 
 `editorialQa` 会显示为“常见问题与编辑答疑”。它不是评论系统：不得添加虚构昵称、游客、设备、IP、所在地、时间或互动数量，也不要把编辑整理的问题伪装成用户留言。
 
+## OKX 官方活动自动同步
+
+同步器读取 [OKX Latest events](https://www.okx.com/help/section/latest-events) 页面内的结构化官方列表，不复制活动正文，也不使用第三方聚合数据。首次运行会把现有列表建立为基线，并为最新一条符合活动关键词的记录生成可收录文章；后续每个 PR 最多新增一篇。生成页已经设置 `draft: false`、`noindex: false`，但自动化只创建草稿 PR，合并后才会发布和进入 Sitemap、RSS、Pagefind 与 Agent 语料。
+
+本地检查数据与输出：
+
+```bash
+npm run sync:okx -- --dry-run
+npm run test:okx-sync
+```
+
+定时任务位于 `.github/workflows/sync-okx-activities.yml`，按 Asia/Shanghai 时区每 6 小时运行，并使用固定的 `automation/okx-activity-sync` 分支维护一个草稿 PR。任务会先运行完整的 `npm run check`；无新活动时不创建空 PR，也不会直推或自动合并 `main`。机器状态保存在 `src/data/okx-activity-sync.json`，官方 ID 到永久 slug 的映射不得删除。
+
+为让自动 PR 正常触发现有校验，需要创建一个只安装到本仓库的 GitHub App，并授予 `Contents: Read and write`、`Pull requests: Read and write` 与 `Metadata: Read`。随后配置：
+
+```text
+OKX_SYNC_APP_CLIENT_ID   Repository variable，GitHub App Client ID
+OKX_SYNC_APP_PRIVATE_KEY Repository secret，GitHub App private key
+```
+
+可先从 Actions 手动运行 `Sync OKX official activities` 并勾选 `dry_run`。GitHub App 使用短期安装令牌；不需要在仓库保存 PAT。合并前仍须核对地区、资格、起止时间、奖励和风险，明确的信息应补入正文与 frontmatter。
+
 ### 返佣链接
 
 不要在 Markdown 正文中粘贴注册链接、邀请码参数或渠道链接。只需设置已定义的 `affiliateKey`，展示组件会从 `src/data/referrals.json` 取出入口，并统一添加返佣披露与链接属性。

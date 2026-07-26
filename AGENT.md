@@ -62,6 +62,15 @@ npm run check
 - `draft: true` 或 `noindex: true` 的内容不得进入 RSS、Sitemap、Pagefind 或 Agent 语料。
 - 原有文章 slug、`/tag/`、`/rss`、`/api/sitemap` 和 `/okx/` 是稳定路径。
 
+## OKX 官方活动同步
+
+- `npm run sync:okx` 只读取 `https://www.okx.com/help/section/latest-events` 的结构化列表；不得改成转载第三方活动聚合页。
+- 自动文章使用 `okx-event-*` 永久 slug，并保留 `syncProvider`、`syncSourceId`、`syncSourceUrl`、来源时间和哈希字段。不要手工删除这些溯源字段或修改 `src/data/okx-activity-sync.json` 的 ID 映射。
+- 同步文章在 PR 中已经是 `draft: false`、`noindex: false`；PR 是发布闸门，合并后才会进入生产索引。不得让同步工作流直推或自动合并 `main`。
+- 自动正文只陈述官方列表可验证的来源、标题和时间，不推测地区、资格、截止时间或奖励。合并前应打开官方详情页补齐这些字段；有明确起止时间时同步设置 `startsAt`、`expiresAt` 和正确状态。
+- 同步器不会覆盖已经生成的 Markdown。官方标题或更新时间变化只更新状态索引，由编辑决定是否修改正文。
+- 自动文章不设置 `affiliateKey`。需要返佣入口时仍按既有披露策略人工添加，正文不得粘贴邀请链接。
+
 ## 代码约定
 
 - MDX 组件必须在 `src/components.ts` 注册。
