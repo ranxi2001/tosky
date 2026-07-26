@@ -2,15 +2,15 @@
 title: "OKX DEX 邀请返佣计划与手续费折扣"
 description: "OKX DEX 邀请返佣计划、服务费折扣和历史开放条件说明。"
 publishedAt: "2025-08-25T10:41:48.002Z"
-updatedAt: "2025-08-25T10:41:49.422Z"
-lastVerifiedAt: "2025-08-25T10:41:49.422Z"
+updatedAt: "2026-07-26T22:35:14+08:00"
+lastVerifiedAt: "2026-07-26T22:35:14+08:00"
 author: "onefly"
 category: "campaign"
 tags: ["okx","dex","onchain","referral"]
 cover: "/images/posts/424e39d5-360c-44dc-9c1a-5a1415dcb2f5.png"
 coverAlt: "OKX DEX 邀请返佣计划说明"
 featured: false
-status: "review"
+status: "evergreen"
 exchange: "OKX DEX"
 chain: "multi-chain"
 regions: []

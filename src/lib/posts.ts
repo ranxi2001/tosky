@@ -16,7 +16,7 @@ export const statusLabels: Record<PostStatus, string> = {
   active: "进行中",
   upcoming: "即将开始",
   expired: "已结束",
-  evergreen: "长期有效",
+  evergreen: "有效",
   review: "待复核",
 };
 
