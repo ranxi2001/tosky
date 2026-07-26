@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "tosky",
-  "account_id": "927e5b09d5100270cbb1ab4bf9ae4865",
+  "account_id": "dae249001f7f5786c985381ccf2c9d90",
   "main": "./src/worker.ts",
   "compatibility_date": "2026-07-26",
   "preview_urls": true,
