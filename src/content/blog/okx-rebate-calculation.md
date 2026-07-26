@@ -23,7 +23,7 @@ editorialQa:
   - question: "OKX 返佣和币安 BNB 抵扣哪个更划算？"
     answer: "OKX 20% 返佣无需持有特定代币，直接返现；币安 BNB 抵扣需要持有 BNB 且优惠为 25%。如果不想持有平台币，OKX 返佣方式更简单；如果本身会持有 BNB，币安抵扣比例略高。"
   - question: "欧意返佣/欧亿返佣怎么算？和欧易一样吗？"
-    answer: ""欧意""欧亿"都是欧易（OKX）的错别字。返佣计算方式完全一样：通过邀请码 88596413 注册，每笔手续费自动返还 20%，实时到账，终身有效。"
+    answer: '"欧意"、"欧亿"都是欧易（OKX）的错别字。返佣计算方式完全一样：通过邀请码 88596413 注册，每笔手续费自动返还 20%，实时到账，终身有效。'
 sources: [{"label":"OKX 官方费率页面","url":"https://www.okx.com/fees"},{"label":"OKX 邀请返佣规则","url":"https://www.okx.com/help/invite-friends"}]
 sidebar: false
 tableOfContents:
