@@ -23,6 +23,7 @@ const requiredFields = [
   "status",
   "regions",
   "riskDisclosure",
+  "editorialQa",
   "sources",
   "draft",
   "noindex",
@@ -121,6 +122,19 @@ function scalar(field) {
 function isList(field) {
   if (!field) return false;
   return field.raw.startsWith("[") || field.block.some((line) => /^\s*-\s+/.test(line));
+}
+
+function listItemCount(field) {
+  if (!field) return undefined;
+  if (field.raw.startsWith("[")) {
+    try {
+      const value = JSON.parse(field.raw);
+      return Array.isArray(value) ? value.length : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+  return field.block.filter((line) => /^\s*-\s+(?:question\s*:|\{)/u.test(line)).length;
 }
 
 function parseDate(field, file, name) {
@@ -296,9 +310,32 @@ async function validateFile(file, affiliateData, now) {
     report(errors, file, `status 不受支持：${status}`, fields.get("status").line);
   }
 
-  for (const field of ["tags", "regions", "sources"]) {
+  for (const field of ["tags", "regions", "editorialQa", "sources"]) {
     const entry = fields.get(field);
     if (entry && !isList(entry)) report(errors, file, `${field} 必须是 YAML 数组`, entry.line);
+  }
+
+  const editorialQa = fields.get("editorialQa");
+  const editorialQaCount = listItemCount(editorialQa);
+  const editorialQaSource = editorialQa
+    ? [editorialQa.raw, ...editorialQa.block].join("\n")
+    : "";
+  if (editorialQa && editorialQaCount === undefined) {
+    report(errors, file, "editorialQa 必须是可解析的问答数组", editorialQa.line);
+  } else if (editorialQa && editorialQaCount < 2) {
+    report(errors, file, "editorialQa 至少需要 2 组编辑问答", editorialQa.line);
+  } else if (editorialQa && editorialQaCount > 4) {
+    report(errors, file, "editorialQa 最多保留 4 组高相关问答", editorialQa.line);
+  }
+  if (scalar(fields.get("draft")) !== "true" && /\bTODO\b/iu.test(editorialQaSource)) {
+    report(errors, file, "已发布文章的 editorialQa 不能包含 TODO", editorialQa?.line);
+  }
+  if (
+    /(?:^|[\s"'{,])(?:nickname|visitor|ip(?:Address)?|location|device|phone(?:Model)?|昵称|游客|所在地|手机型号)\s*:/imu.test(
+      editorialQaSource,
+    )
+  ) {
+    report(errors, file, "editorialQa 不能包含伪造的身份、设备、IP 或所在地字段", editorialQa?.line);
   }
 
   const coverAlt = scalar(fields.get("coverAlt"));
@@ -322,7 +359,11 @@ async function validateFile(file, affiliateData, now) {
   }
 
   const seenAffiliateUrls = new Set();
-  for (const match of findUrls(document.body, document.bodyStartsAt)) {
+  const urlMatches = [
+    ...findUrls(document.body, document.bodyStartsAt),
+    ...findUrls(editorialQaSource, editorialQa?.line ?? 1),
+  ];
+  for (const match of urlMatches) {
     const normalized = normalizeUrl(match.url);
     if (seenAffiliateUrls.has(normalized)) continue;
     seenAffiliateUrls.add(normalized);

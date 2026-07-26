@@ -2,7 +2,7 @@
 title: "OKX WLFI 与 USD1 奖金活动（已结束）"
 description: "OKX WLFI、USD1 与首次策略交易活动的历史任务和时间说明。"
 publishedAt: "2025-09-03T11:52:43.713Z"
-updatedAt: "2025-09-03T11:53:07.713Z"
+updatedAt: "2026-07-26T23:23:28+08:00"
 lastVerifiedAt: "2025-09-03T11:53:07.713Z"
 author: "onefly"
 category: "campaign"
@@ -17,6 +17,11 @@ exchange: "OKX"
 regions: []
 affiliateKey: "okx"
 riskDisclosure: "该活动已经结束，页面仅作历史记录。活动资格与奖励以官方最终规则为准。"
+editorialQa:
+  - question: "OKX WLFI 与 USD1 奖金活动现在还能参加吗？"
+    answer: "不能。页面记录的活动已于 2025-09-19 结束，旧任务、入口和奖励条件不应再用于当前操作。"
+  - question: "完成过当时的任务但没有收到奖励怎么办？"
+    answer: "请保留活动期订单与任务记录，并通过 OKX 官方客服核对当期资格和发放结果；本页是历史说明，无法代替平台审核。"
 sources: []
 legacyWispId: "cmf3x425g000dguircb0il7kr"
 sidebar: false

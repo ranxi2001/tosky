@@ -50,6 +50,7 @@ export function GET({ props }: { props: SlugProps }) {
     ...(data.riskDisclosure
       ? [`riskDisclosure: ${JSON.stringify(data.riskDisclosure)}`]
       : []),
+    `editorialQa: ${JSON.stringify(data.editorialQa)}`,
     `sources: ${JSON.stringify(data.sources)}`,
     ...(data.legacyWispId ? [`legacyWispId: ${JSON.stringify(data.legacyWispId)}`] : []),
     ...(data.socialImage ? [`socialImage: ${JSON.stringify(data.socialImage)}`] : []),

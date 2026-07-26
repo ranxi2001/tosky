@@ -47,6 +47,7 @@ export function GET({ props }: { props: SlugProps }) {
     ...(data.startsAt ? [`startsAt: ${JSON.stringify(data.startsAt.toISOString())}`] : []),
     ...(data.expiresAt ? [`expiresAt: ${JSON.stringify(data.expiresAt.toISOString())}`] : []),
     ...(data.affiliateKey ? [`affiliateKey: ${JSON.stringify(data.affiliateKey)}`] : []),
+    `editorialQa: ${JSON.stringify(data.editorialQa)}`,
     `sources: ${JSON.stringify(data.sources)}`,
     `canonical: ${JSON.stringify(new URL(item.url, config.site).href)}`,
     `image: ${JSON.stringify(new URL(data.socialImage ?? `/og/blog/${entry.id}.png`, config.site).href)}`,
@@ -59,6 +60,16 @@ export function GET({ props }: { props: SlugProps }) {
     "",
     markdown,
   ];
+
+  lines.push(
+    "",
+    "## 常见问题与编辑答疑",
+    "",
+    "> 根据本页主题的常见搜索问题整理，由 ToSky 编辑回答；不是实时用户留言。",
+  );
+  for (const item of data.editorialQa) {
+    lines.push("", `### ${item.question}`, "", item.answer);
+  }
 
   if (data.riskDisclosure) {
     lines.push("", "## 风险提示", "", data.riskDisclosure);

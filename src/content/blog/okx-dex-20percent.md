@@ -2,7 +2,7 @@
 title: "OKX DEX 邀请返佣计划与手续费折扣"
 description: "OKX DEX 邀请返佣计划、服务费折扣和历史开放条件说明。"
 publishedAt: "2025-08-25T10:41:48.002Z"
-updatedAt: "2026-07-26T22:35:14+08:00"
+updatedAt: "2026-07-26T23:23:28+08:00"
 lastVerifiedAt: "2026-07-26T22:35:14+08:00"
 author: "onefly"
 category: "campaign"
@@ -16,6 +16,11 @@ chain: "multi-chain"
 regions: []
 affiliateKey: "okx-dex"
 riskDisclosure: "邀请资格、服务费和折扣比例可能调整，绑定前请核验官方最新规则。"
+editorialQa:
+  - question: "OKX DEX 邀请码是什么，能获得多少优惠？"
+    answer: "本站已验证的 OKX DEX 邀请码是 ONEFLY，标准为 20% 服务费优惠。绑定前仍应在钱包内确认邀请码、折扣显示和当期适用条件。"
+  - question: "已经使用过 OKX 钱包还能绑定 DEX 邀请码吗？"
+    answer: "是否可绑定取决于账户资格、产品版本和当期开放规则，不能仅凭是否安装过钱包判断。请以 OKX DEX 绑定页面和官方帮助中心的实时提示为准。"
 sources: [{"label":"OKX DEX 邀请返佣计划帮助中心","url":"https://web3.okx.com/zh-hans/help/whats-dex-referral-program"},{"label":"OKX DEX 交易服务费说明","url":"https://web3.okx.com/zh-hans/dex-fees"}]
 legacyWispId: "cmeqzma260005of3ilrc1f10a"
 sidebar: false

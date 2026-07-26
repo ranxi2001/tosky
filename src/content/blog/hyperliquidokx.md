@@ -2,7 +2,7 @@
 title: "Hyperliquid 手续费与 OKX、币安对比"
 description: "整理 Hyperliquid 的历史手续费结构，并对比中心化交易所与链上交易体验。"
 publishedAt: "2025-08-25T13:38:52.023Z"
-updatedAt: "2025-08-25T13:39:29.315Z"
+updatedAt: "2026-07-26T23:23:28+08:00"
 lastVerifiedAt: "2025-08-25T13:39:29.315Z"
 author: "onefly"
 category: "analysis"
@@ -14,6 +14,11 @@ status: "review"
 chain: "Hyperliquid"
 regions: []
 riskDisclosure: "费率、交易量和平台规则会变化，文中数据不构成投资或平台选择建议。"
+editorialQa:
+  - question: "这张 Hyperliquid 手续费表现在还能直接使用吗？"
+    answer: "不能直接当作当前费率依据。本文数据最后核验于 2025-08-25，页面已标记待复核；交易前请查看 Hyperliquid、OKX 和币安各自的最新官方费率页。"
+  - question: "手续费低是否代表 Hyperliquid 一定更适合交易？"
+    answer: "不是。选择平台还要比较流动性、滑点、托管方式、出入金路径、合约风险与地区限制，不能只按单一费率决定。"
 sources: []
 legacyWispId: "cmer5yraa000klv7kfuj8dpyl"
 sidebar: false

@@ -2,7 +2,7 @@
 title: "OKX C2C 冻结赔付商家规则说明"
 description: "整理 OKX C2C 冻结赔付商家的赔付范围、比例和历史公告信息。"
 publishedAt: "2025-08-27T06:08:12.599Z"
-updatedAt: "2025-08-27T06:10:30.293Z"
+updatedAt: "2026-07-26T23:23:28+08:00"
 lastVerifiedAt: "2025-08-27T06:10:30.293Z"
 author: "onefly"
 category: "exchange"
@@ -15,6 +15,11 @@ exchange: "OKX"
 regions: []
 affiliateKey: "okx"
 riskDisclosure: "赔付资格、比例与上限可能变化，交易前应在 OKX 官方页面核验最新规则。"
+editorialQa:
+  - question: "冻结赔付商家是否等于 C2C 出金零风险？"
+    answer: "不是。赔付通常受商家类型、订单金额、举证、账户与平台规则限制，也不能消除收款账户冻结或合规审查风险。"
+  - question: "文中的 100% 赔付比例现在还有效吗？"
+    answer: "本文最后核验于 2025-08-27，目前处于待复核状态，不能把历史比例视为当前承诺。交易前请在 OKX C2C 官方页面确认最新范围、上限和条件。"
 sources: []
 legacyWispId: "cmetkq8nf0001z4xu88cudywd"
 sidebar: false

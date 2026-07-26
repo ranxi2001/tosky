@@ -34,6 +34,15 @@ export const collections = {
         regions: z.array(z.string()).default([]),
         affiliateKey: z.string().optional(),
         riskDisclosure: z.string().optional(),
+        editorialQa: z
+          .array(
+            z.object({
+              question: z.string().trim().min(4),
+              answer: z.string().trim().min(8),
+            }),
+          )
+          .min(2)
+          .max(4),
         sources: z
           .array(
             z.object({

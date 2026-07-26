@@ -234,6 +234,11 @@ featured: false
 status: ${yamlString(status)}
 ${optionalFields.length ? `${optionalFields.join("\n")}\n` : ""}regions: ${yamlList(options.regions)}
 riskDisclosure: "本文仅提供活动与产品信息，不构成投资建议；参与前请核验官方规则、地区限制与风险。"
+editorialQa:
+  - question: "TODO：读者最常搜索的具体问题是什么？"
+    answer: "TODO：给出可核验的直接答案，并说明适用范围或时间边界。"
+  - question: "TODO：读者最容易误解或需要继续确认什么？"
+    answer: "TODO：澄清限制、风险和应当查阅的一手来源。"
 sources: []
 sidebar: false
 tableOfContents:
@@ -248,6 +253,7 @@ Agent 写作约束：
 - 开头直接回答读者最关心的问题，不写空泛背景。
 - 给出明确的适用对象、地区、开始/结束时间、费用和参与步骤。
 - 可核验事实加入 sources；不确定或可能变化的信息要标明核验日期。
+- editorialQa 填写 2 至 4 组真实搜索问题，由编辑署名回答；不得伪造昵称、设备、IP、所在地或游客留言。
 - 正文不要粘贴邀请链接。返佣入口只通过 affiliateKey 和站点返佣组件输出。
 - 发布前补齐本地封面，将 draft/noindex 调整为合适值，并运行 npm run check:content。
 -->
@@ -278,7 +284,7 @@ TODO：说明资产、合约、托管、地区合规和活动变更风险，并�
   await writeFile(target, content, { encoding: "utf8", flag: "wx" });
 
   console.log(`已创建 src/content/blog/${slug}.md`);
-  console.log(`下一步：添加 ${cover}，补充 sources 和正文，然后运行 npm run check:content。`);
+  console.log(`下一步：添加 ${cover}，补充 editorialQa、sources 和正文，然后运行 npm run check:content。`);
 }
 
 main().catch((error) => {

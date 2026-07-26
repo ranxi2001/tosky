@@ -2,7 +2,7 @@
 title: "OKX NIGHT 闪赚活动：420,000,000 NIGHT 奖池（已结束）"
 description: "OKX NIGHT 闪赚活动历史记录，包含锁仓资产、奖池规模和活动时间。"
 publishedAt: "2025-12-08T15:34:40.284Z"
-updatedAt: "2025-12-08T15:37:00.630Z"
+updatedAt: "2026-07-26T23:23:28+08:00"
 lastVerifiedAt: "2025-12-08T15:37:00.630Z"
 author: "onefly"
 category: "campaign"
@@ -17,6 +17,11 @@ exchange: "OKX"
 regions: []
 affiliateKey: "okx"
 riskDisclosure: "该活动已经结束，页面仅作历史记录。收益率与奖励不代表未来结果。"
+editorialQa:
+  - question: "OKX NIGHT 闪赚活动现在还能参加吗？"
+    answer: "不能。本文记录的 48 小时活动已于 2025-12-11 结束，页面中的奖池、入口和预估收益率均属于历史信息。"
+  - question: "文中的高年化数字代表保本收益吗？"
+    answer: "不代表。活动期预估年化会受奖池、参与规模、代币价格与规则影响，也不能外推为长期或保本收益。"
 sources: []
 legacyWispId: "cmixbbc9m0001nou73rdov944"
 sidebar: false

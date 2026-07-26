@@ -2,7 +2,7 @@
 title: "OKX 与币安注册链接及手续费优惠说明"
 description: "说明交易所邀请链接、邀请码和手续费优惠的基本机制与核验方法。"
 publishedAt: "2025-07-11T07:19:01.180Z"
-updatedAt: "2026-07-26T08:40:00.000Z"
+updatedAt: "2026-07-26T23:23:28+08:00"
 lastVerifiedAt: "2026-07-26T08:40:00.000Z"
 author: "onefly"
 category: "guide"
@@ -15,6 +15,11 @@ exchange: "OKX, Binance"
 regions: []
 affiliateKey: "okx"
 riskDisclosure: "返佣比例和适用条件可能随地区、账户与活动变化，注册前请在交易所官方页面确认。"
+editorialQa:
+  - question: "OKX 和币安的邀请码及手续费优惠分别是什么？"
+    answer: "本站已验证的 OKX 邀请码是 88596413，标准为终身最高 20% 官方手续费返佣，即手续费八折；币安邀请码是 TOSKY，标准为 10% 手续费优惠。"
+  - question: "“欧意邀请码”或“欧亿邀请码”指的是欧易 OKX 吗？"
+    answer: "这两种写法通常是“欧易邀请码”的错别字。本站统一使用官方名称 OKX（欧易），相关搜索问题由同一页面回答，不另建容易混淆的重复页面。"
 sources: []
 legacyWispId: "cmcyhk6jm000uqh9er4xkjg1h"
 sidebar: false

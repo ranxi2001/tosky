@@ -36,6 +36,8 @@ npm run check
 - 不承诺收益，不把返佣或空投描述成无风险收入。
 - 封面和正文图片必须本地化，所有图片必须有描述实际画面的 alt 文本。
 - 正文不重复 H1；页面 H1 来自 frontmatter 的 `title`。
+- 每篇文章和活动必须填写 2-4 组 `editorialQa`，问题来自真实搜索意图，答案由 ToSky 编辑核验并明确适用范围。
+- `editorialQa` 是公开的编辑答疑，不是用户评论。不得伪造昵称、游客身份、手机型号、IP、所在地、时间、点赞或其他互动数据。
 
 ## Frontmatter
 
@@ -44,6 +46,7 @@ npm run check
 - `title`、`description`、`publishedAt`、`updatedAt`、`author`
 - `category`、`tags`、`cover`、`coverAlt`
 - `status`、`regions`、`riskDisclosure`、`sources`
+- `editorialQa`（2-4 组，仅含 `question` 与 `answer`）
 - `draft`、`noindex`
 
 活动状态只能使用 `active`、`upcoming`、`expired`、`evergreen`、`review`。`upcoming` 必须提供未来的 `startsAt`；已有过去的 `expiresAt` 必须标记为 `expired`。

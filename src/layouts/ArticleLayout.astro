@@ -157,6 +157,27 @@ const formatDateTime = (date: Date) =>
             <slot />
           </div>
 
+          <section class="article-qa" aria-labelledby="editorial-qa-heading">
+            <div class="article-qa-heading">
+              <h2 id="editorial-qa-heading">
+                <Icon name="ph:chats-circle" class="h-5 w-5" />
+                常见问题与编辑答疑
+              </h2>
+              <p>根据本页主题的常见搜索问题整理，由 ToSky 编辑回答；不是实时用户留言。</p>
+            </div>
+            <div class="article-qa-list">
+              {data.editorialQa.map((item) => (
+                <div class="article-qa-item">
+                  <h3>{item.question}</h3>
+                  <div class="article-qa-answer">
+                    <span>ToSky 编辑</span>
+                    <p>{item.answer}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {data.riskDisclosure && (
             <section class="article-disclosure" aria-labelledby="risk-heading">
               <h2 id="risk-heading"><Icon name="ph:shield-warning" class="h-5 w-5" />风险提示</h2>
@@ -396,14 +417,16 @@ const formatDateTime = (date: Date) =>
   }
 
   .article-disclosure,
-  .article-sources {
+  .article-sources,
+  .article-qa {
     margin-top: 2.5rem;
     padding-top: 1.25rem;
     border-top: 1px solid var(--nb-border);
   }
 
   .article-disclosure h2,
-  .article-sources h2 {
+  .article-sources h2,
+  .article-qa h2 {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -411,6 +434,57 @@ const formatDateTime = (date: Date) =>
     color: var(--nb-foreground);
     font-size: 1rem;
     letter-spacing: 0;
+  }
+
+  .article-qa-heading {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .article-qa-heading p {
+    margin: 0;
+    color: var(--nb-muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+
+  .article-qa-list {
+    margin-top: 1.25rem;
+    border-bottom: 1px solid var(--nb-border);
+  }
+
+  .article-qa-item {
+    padding: 1.125rem 0;
+    border-top: 1px solid var(--nb-border);
+  }
+
+  .article-qa-item h3 {
+    margin: 0;
+    color: var(--nb-foreground);
+    font-size: 0.975rem;
+    line-height: 1.55;
+    letter-spacing: 0;
+  }
+
+  .article-qa-answer {
+    display: grid;
+    grid-template-columns: 5.25rem minmax(0, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.65rem;
+  }
+
+  .article-qa-answer span {
+    color: var(--nb-muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 650;
+    line-height: 1.7;
+  }
+
+  .article-qa-answer p {
+    margin: 0;
+    color: var(--nb-muted-foreground);
+    font-size: 0.875rem;
+    line-height: 1.75;
   }
 
   .article-disclosure p {
@@ -572,6 +646,11 @@ const formatDateTime = (date: Date) =>
 
     .article-related-grid {
       grid-template-columns: 1fr;
+    }
+
+    .article-qa-answer {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
     }
 
   }

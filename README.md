@@ -67,7 +67,8 @@ npm run new:post -- --help
 3. 将可核验的一手资料加入 `sources`，并更新 `lastVerifiedAt`。
 4. 活动使用 `active`、`upcoming` 或 `expired`；长期指南使用 `evergreen`；待复核旧文使用 `review`。
 5. 将封面放到 `public/images/posts/`，使用描述实际画面的 `coverAlt`。
-6. 准备发布时设置 `draft: false`；需要收录时再设置 `noindex: false`。
+6. 填写 2-4 组 `editorialQa`，用编辑身份直接回答真实搜索问题。
+7. 准备发布时设置 `draft: false`；需要收录时再设置 `noindex: false`。
 
 核心 frontmatter 示例：
 
@@ -90,6 +91,11 @@ expiresAt: "2026-08-01T00:00:00.000Z"
 regions: []
 affiliateKey: "okx"
 riskDisclosure: "奖励和资格可能变化，参与前请核验官方规则。"
+editorialQa:
+  - question: "这项活动现在还能参加吗？"
+    answer: "可以，当前状态为进行中；参与前仍需核对结束时间和地区限制。"
+  - question: "奖励是否保证获得？"
+    answer: "不保证，资格审核、名额和发放结果均以官方规则为准。"
 sources:
   - label: "官方活动规则"
     url: "https://example.com/official-rules"
@@ -98,7 +104,9 @@ noindex: false
 ---
 ```
 
-`expiresAt` 已经过期时，`status` 必须是 `expired`；`upcoming` 必须提供未来的 `startsAt`。`npm run check:content` 会同时验证必需字段、本地封面文件、日期关系、`affiliateKey` 是否存在，以及正文是否出现硬编码邀请链接。`sources` 中允许保留活动规则与资料 URL。
+`expiresAt` 已经过期时，`status` 必须是 `expired`；`upcoming` 必须提供未来的 `startsAt`。`npm run check:content` 会同时验证必需字段、本地封面文件、日期关系、`editorialQa` 数量、`affiliateKey` 是否存在，以及正文是否出现硬编码邀请链接。`sources` 中允许保留活动规则与资料 URL。
+
+`editorialQa` 会显示为“常见问题与编辑答疑”。它不是评论系统：不得添加虚构昵称、游客、设备、IP、所在地、时间或互动数量，也不要把编辑整理的问题伪装成用户留言。
 
 ### 返佣链接
 
