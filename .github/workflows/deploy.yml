@@ -1,0 +1,80 @@
+name: Validate and deploy ToSky
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run release checks
+        run: npm run check
+
+  deploy:
+    name: Deploy production
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://tosky.top
+    permissions:
+      contents: read
+      deployments: write
+    concurrency:
+      group: tosky-production
+      cancel-in-progress: false
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Deploy to Cloudflare Workers
+        id: cloudflare
+        # cloudflare/wrangler-action v4.0.0, pinned for supply-chain stability.
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+          packageManager: npm
+          wranglerVersion: 4.114.0
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify production SEO and agent endpoints
+        env:
+          SITE_URL: https://tosky.top
+        run: npm run check:production

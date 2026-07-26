@@ -1,0 +1,14 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/rss.xml
+  Content-Type: application/rss+xml; charset=utf-8
+
+/blog/*/index.md
+  Content-Type: text/markdown; charset=utf-8
+
+/blog/*/index.mdx
+  Content-Type: text/markdown; charset=utf-8

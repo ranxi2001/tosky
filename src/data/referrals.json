@@ -1,0 +1,26 @@
+{
+  "okx": {
+    "name": "OKX",
+    "url": "https://www.firgrouxywebb.com/join/88596413",
+    "officialUrl": "https://www.okx.com/join/88596413",
+    "inviteCode": "88596413",
+    "label": "查看 OKX 注册入口",
+    "benefit": "通过邀请码 88596413 注册，享受终身最高 20% 官方手续费返佣（手续费八折）。"
+  },
+  "okx-dex": {
+    "name": "OKX DEX",
+    "url": "https://web3.okx.com/ul/joindex?ref=ONEFLY",
+    "officialUrl": "https://web3.okx.com/zh-hans/help/whats-dex-referral-program",
+    "inviteCode": "ONEFLY",
+    "label": "查看 OKX DEX 邀请入口",
+    "benefit": "绑定邀请码 ONEFLY，按已验证标准获得 20% 服务费优惠。"
+  },
+  "binance": {
+    "name": "Binance",
+    "url": "https://www.binance.info/zh-CN/join?ref=TOSKY",
+    "officialUrl": "https://www.binance.com/",
+    "inviteCode": "TOSKY",
+    "label": "查看 Binance 注册入口",
+    "benefit": "通过邀请码 TOSKY 注册，按已验证标准享受 10% 手续费优惠。"
+  }
+}

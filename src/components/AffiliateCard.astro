@@ -1,0 +1,35 @@
+---
+import { Icon } from "astro-icon/components";
+import { getReferral } from "@/lib/referrals";
+
+interface Props {
+  referral: string;
+  compact?: boolean;
+}
+
+const { referral: key, compact = false } = Astro.props;
+const referral = getReferral(key);
+---
+
+{referral && (
+  <aside class:list={["affiliate-card", compact && "affiliate-card-compact"]} aria-label={`${referral.name} 邀请链接说明`}>
+    <div class="affiliate-card-copy">
+      <div class="affiliate-eyebrow">
+        <Icon name="ph:seal-check" class="h-4 w-4" />
+        <span>合作链接</span>
+      </div>
+      <strong>{referral.name}</strong>
+      <p>{referral.benefit}</p>
+      <small>邀请码：<code>{referral.inviteCode}</code> · 本站可能从有效注册中获得佣金</small>
+    </div>
+    <a
+      class="affiliate-button"
+      href={referral.url}
+      target="_blank"
+      rel="sponsored nofollow noopener noreferrer"
+    >
+      <span>{referral.label}</span>
+      <Icon name="ph:arrow-up-right" class="h-4 w-4" />
+    </a>
+  </aside>
+)}

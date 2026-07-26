@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tosky",
+  "account_id": "927e5b09d5100270cbb1ab4bf9ae4865",
+  "main": "./src/worker.ts",
+  "compatibility_date": "2026-07-26",
+  "preview_urls": true,
+  "routes": [
+    {
+      "pattern": "tosky.top",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.tosky.top",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "404-page"
+  }
+}

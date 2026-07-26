@@ -1,0 +1,52 @@
+---
+import { Icon } from "astro-icon/components";
+import { ThemeToggle } from "./ui/theme-toggle";
+import { SearchTrigger } from "./ui/search";
+
+interface Props {
+  collection?: string;
+  entryId?: string;
+  showSidebar?: boolean;
+}
+
+const pathname = Astro.url.pathname;
+const links = [
+  { href: "/blog/", label: "文章" },
+  { href: "/activities/", label: "活动" },
+  { href: "/tag/", label: "主题" },
+  { href: "/okx/", label: "OKX 指南" },
+  { href: "/about/", label: "关于" },
+];
+
+const active = (href: string) => pathname === href || pathname.startsWith(href) && href !== "/";
+---
+
+<header class="site-header">
+  <div class="site-shell header-inner">
+    <a href="/" class="site-brand" aria-label="ToSky 首页">
+      <span class="brand-mark" aria-hidden="true">T</span>
+      <span>ToSky</span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="主导航">
+      {links.map((link) => (
+        <a href={link.href} aria-current={active(link.href) ? "page" : undefined}>{link.label}</a>
+      ))}
+    </nav>
+
+    <div class="header-actions">
+      <SearchTrigger />
+      <ThemeToggle />
+      <details class="mobile-nav">
+        <summary aria-label="打开导航">
+          <Icon name="ph:list" class="h-5 w-5" />
+        </summary>
+        <nav aria-label="移动端导航">
+          {links.map((link) => (
+            <a href={link.href} aria-current={active(link.href) ? "page" : undefined}>{link.label}</a>
+          ))}
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>

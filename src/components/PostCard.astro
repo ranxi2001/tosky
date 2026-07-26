@@ -1,0 +1,34 @@
+---
+import { Icon } from "astro-icon/components";
+import type { BlogPost } from "@/lib/posts";
+import { categoryLabels, formatDate, readingMinutes } from "@/lib/posts";
+import StatusBadge from "./StatusBadge.astro";
+
+interface Props {
+  post: BlogPost;
+  featured?: boolean;
+}
+
+const { post, featured = false } = Astro.props;
+const href = `/blog/${post.id}/`;
+---
+
+<article class:list={["post-card", featured && "post-card-featured"]}>
+  <a href={href} class="post-card-media" aria-label={`阅读：${post.data.title}`}>
+    <img src={post.data.cover} alt={post.data.coverAlt} loading={featured ? "eager" : "lazy"} />
+  </a>
+  <div class="post-card-body">
+    <div class="post-card-kicker">
+      <span>{categoryLabels[post.data.category]}</span>
+      <StatusBadge status={post.data.status} />
+    </div>
+    <h2><a href={href}>{post.data.title}</a></h2>
+    <p>{post.data.description}</p>
+    <div class="post-card-meta">
+      <time datetime={post.data.publishedAt.toISOString()}>{formatDate(post.data.publishedAt)}</time>
+      <span aria-hidden="true">·</span>
+      <span>{readingMinutes(post.body)} 分钟</span>
+      <Icon name="ph:arrow-right" class="post-card-arrow h-4 w-4" aria-hidden="true" />
+    </div>
+  </div>
+</article>

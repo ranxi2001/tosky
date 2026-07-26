@@ -1,0 +1,18 @@
+---
+/** Button that opens the search dialog. Cmd+K on macOS, Ctrl+K elsewhere. */
+import { Icon } from "astro-icon/components";
+---
+
+<button
+  data-search-trigger
+  type="button"
+  class="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
+  aria-label="搜索站内内容"
+  aria-keyshortcuts="Control+K"
+>
+  <Icon name="ph:magnifying-glass" class="h-4 w-4" />
+</button>
+
+<script>
+  import "./search-trigger.client";
+</script>

@@ -1,0 +1,11 @@
+---
+import { statusLabels, type PostStatus } from "@/lib/posts";
+
+interface Props {
+  status: PostStatus;
+}
+
+const { status } = Astro.props;
+---
+
+<span class:list={["status-badge", `status-${status}`]}>{statusLabels[status]}</span>

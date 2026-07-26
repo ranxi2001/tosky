@@ -1,9 +1,8 @@
 {
-  "current_link": "https://www.example.com/join/your_invite_code",
-  "invite_code": "your_invite_code",
+  "current_link": "https://www.firgrouxywebb.com/join/88596413",
+  "invite_code": "88596413",
   "files": [
-    "/path/to/src/app/page.tsx",
-    "/path/to/src/app/okx/page.tsx"
+    "src/data/referrals.json"
   ],
   "notion_url": "https://your-notion-page-url",
   "last_updated": null

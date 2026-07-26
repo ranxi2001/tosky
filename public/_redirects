@@ -1,0 +1,5 @@
+/rss /rss.xml 301
+/api/sitemap /sitemap.xml 301
+/sitemap-index.xml /sitemap.xml 301
+/tags /tag/ 301
+/tags/* /tag/:splat 301

@@ -1,0 +1,58 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import PostCard from "@/components/PostCard.astro";
+import { publishedPosts, type BlogPost } from "@/lib/posts";
+
+interface Props {
+  tag: string;
+  posts: BlogPost[];
+}
+
+export async function getStaticPaths() {
+  const posts = publishedPosts(await getCollection("blog"));
+  const tags = Array.from(new Set(posts.flatMap((post) => post.data.tags)));
+
+  return tags.map((tag) => ({
+    // Astro encodes static path params while generating files. Keep the raw
+    // value here so non-ASCII tags are not encoded a second time.
+    params: { tag },
+    props: {
+      tag,
+      posts: posts.filter((post) => post.data.tags.includes(tag)),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+const description = `浏览 ToSky 中标记为 ${tag} 的 Web3 文章，共 ${posts.length} 篇。`;
+---
+
+<BaseLayout title={`#${tag} | ToSky`} description={description}>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main id="main-content" class="flex-1">
+      <header class="border-b border-border bg-card/40">
+        <div class="mx-auto w-full max-w-6xl px-5 py-10 lg:px-8">
+          <nav aria-label="面包屑" class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <a href="/tag/" class="text-muted-foreground no-underline hover:text-primary">全部标签</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{tag}</span>
+          </nav>
+          <p class="text-sm font-medium text-primary">标签归档</p>
+          <h1 class="mt-2 break-words text-3xl font-semibold text-foreground">#{tag}</h1>
+          <p class="mt-3 max-w-2xl leading-7 text-muted-foreground">{description}</p>
+        </div>
+      </header>
+
+      <section aria-label={`${tag} 文章列表`} class="mx-auto w-full max-w-6xl px-5 py-10 lg:px-8">
+        <div class="grid gap-5 md:grid-cols-2">
+          {posts.map((post) => <PostCard post={post} />)}
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </div>
+</BaseLayout>

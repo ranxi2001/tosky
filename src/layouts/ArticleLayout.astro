@@ -1,0 +1,578 @@
+---
+import { Icon } from "astro-icon/components";
+import type { BasePageProps } from "@cloudflare/nimbus-docs/types";
+import AffiliateCard from "@/components/AffiliateCard.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import PostCard from "@/components/PostCard.astro";
+import StatusBadge from "@/components/StatusBadge.astro";
+import type { BlogPost, PostStatus } from "@/lib/posts";
+import {
+  categoryLabels,
+  formatDate,
+  readingMinutes,
+} from "@/lib/posts";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Heading {
+  depth: number;
+  text: string;
+  slug: string;
+}
+
+interface Props extends BasePageProps {
+  post: BlogPost;
+  headings?: Heading[];
+  relatedPosts?: BlogPost[];
+  searchable?: boolean;
+}
+
+const {
+  post,
+  headings = [],
+  relatedPosts = [],
+  searchable,
+  ...baseProps
+} = Astro.props;
+
+const { data } = post;
+const now = Date.now();
+const isExpired =
+  data.status === "expired" ||
+  (data.expiresAt !== undefined && data.expiresAt.getTime() < now);
+const effectiveStatus: PostStatus = isExpired ? "expired" : data.status;
+const verificationAge = data.lastVerifiedAt
+  ? now - data.lastVerifiedAt.getTime()
+  : Number.POSITIVE_INFINITY;
+const needsReview =
+  !isExpired &&
+  (data.status === "review" || verificationAge > 120 * 24 * 60 * 60 * 1000);
+const visibleHeadings = headings.filter(
+  (heading) => heading.depth >= 2 && heading.depth <= 3,
+);
+const effectiveSearchable = searchable ?? !baseProps.noindex;
+const pagefindAttrs: Record<string, string> = effectiveSearchable
+  ? { "data-pagefind-body": "" }
+  : { "data-pagefind-ignore": "" };
+
+const formatDateTime = (date: Date) =>
+  new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Shanghai",
+  }).format(date);
+---
+
+<BaseLayout {...baseProps}>
+  <div class="article-page">
+    <Header showSidebar={false} />
+
+    <main id="main-content" class="article-shell">
+      <nav class="article-breadcrumb" aria-label="面包屑">
+        <a href="/">首页</a>
+        <Icon name="ph:caret-right" class="h-3.5 w-3.5" aria-hidden="true" />
+        <a href="/blog/">文章</a>
+        <Icon name="ph:caret-right" class="h-3.5 w-3.5" aria-hidden="true" />
+        <span aria-current="page">{data.title}</span>
+      </nav>
+
+      <div class:list={["article-grid", visibleHeadings.length === 0 && "article-grid-single"]}>
+        <article class="article-main" {...pagefindAttrs}>
+          <header class="article-header">
+            <div class="article-kicker">
+              <span>{categoryLabels[data.category]}</span>
+              <StatusBadge status={effectiveStatus} />
+            </div>
+
+            <h1>{data.title}</h1>
+            {data.description && <p class="article-deck">{data.description}</p>}
+
+            <div class="article-byline">
+              <span>作者 {data.author}</span>
+              <span aria-hidden="true">·</span>
+              <time datetime={data.publishedAt.toISOString()}>
+                发布于 {formatDate(data.publishedAt)}
+              </time>
+              <span aria-hidden="true">·</span>
+              <span>{readingMinutes(post.body)} 分钟阅读</span>
+            </div>
+
+            <div class="article-facts" aria-label="文章信息">
+              {data.exchange && (
+                <span><Icon name="ph:buildings" class="h-4 w-4" />{data.exchange}</span>
+              )}
+              {data.chain && (
+                <span><Icon name="ph:circles-three-plus" class="h-4 w-4" />{data.chain}</span>
+              )}
+              {data.regions.length > 0 && (
+                <span><Icon name="ph:globe-hemisphere-west" class="h-4 w-4" />地区：{data.regions.join("、")}</span>
+              )}
+              {data.startsAt && (
+                <span><Icon name="ph:calendar-check" class="h-4 w-4" />开始：{formatDateTime(data.startsAt)}</span>
+              )}
+              {data.expiresAt && (
+                <span><Icon name="ph:calendar-x" class="h-4 w-4" />结束：{formatDateTime(data.expiresAt)}</span>
+              )}
+            </div>
+
+            <img
+              class="article-cover"
+              src={data.cover}
+              alt={data.coverAlt}
+              loading="eager"
+              fetchpriority="high"
+            />
+          </header>
+
+          {isExpired && (
+            <aside class="article-notice article-notice-expired" aria-label="活动状态">
+              <Icon name="ph:clock-countdown" class="h-5 w-5" />
+              <div>
+                <strong>该活动已经结束</strong>
+                <p>页面保留作历史记录。入口、奖励和参与条件可能已经失效，请勿按旧规则操作。</p>
+              </div>
+            </aside>
+          )}
+
+          {needsReview && (
+            <aside class="article-notice article-notice-review" aria-label="核验状态">
+              <Icon name="ph:warning-circle" class="h-5 w-5" />
+              <div>
+                <strong>信息待复核</strong>
+                <p>
+                  本文最近一次核验于 {data.lastVerifiedAt ? formatDate(data.lastVerifiedAt) : "尚未记录"}。
+                  费率、活动规则与地区限制可能已经变化，请以官方最新页面为准。
+                </p>
+              </div>
+            </aside>
+          )}
+
+          {data.affiliateKey && <AffiliateCard referral={data.affiliateKey} />}
+
+          <div class="docs-content article-prose">
+            <slot />
+          </div>
+
+          {data.riskDisclosure && (
+            <section class="article-disclosure" aria-labelledby="risk-heading">
+              <h2 id="risk-heading"><Icon name="ph:shield-warning" class="h-5 w-5" />风险提示</h2>
+              <p>{data.riskDisclosure}</p>
+            </section>
+          )}
+
+          {data.sources.length > 0 && (
+            <section class="article-sources" aria-labelledby="sources-heading">
+              <h2 id="sources-heading"><Icon name="ph:link" class="h-5 w-5" />来源与核验</h2>
+              <ol>
+                {data.sources.map((source) => (
+                  <li>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer">
+                      <span>{source.label}</span>
+                      <Icon name="ph:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          <footer class="article-revision">
+            <span>更新：<time datetime={data.updatedAt.toISOString()}>{formatDate(data.updatedAt)}</time></span>
+            {data.lastVerifiedAt && (
+              <span>核验：<time datetime={data.lastVerifiedAt.toISOString()}>{formatDate(data.lastVerifiedAt)}</time></span>
+            )}
+          </footer>
+        </article>
+
+        {visibleHeadings.length > 0 && (
+          <aside class="article-toc" aria-label="文章目录">
+            <div>
+              <strong>目录</strong>
+              <nav>
+                {visibleHeadings.map((heading) => (
+                  <a href={`#${heading.slug}`} class:list={[heading.depth === 3 && "toc-depth-3"]}>
+                    {heading.text}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </aside>
+        )}
+      </div>
+
+      {relatedPosts.length > 0 && (
+        <section class="article-related" aria-labelledby="related-heading">
+          <div class="article-related-heading">
+            <div>
+              <span>继续阅读</span>
+              <h2 id="related-heading">相关内容</h2>
+            </div>
+            <a href="/blog/">查看全部文章<Icon name="ph:arrow-right" class="h-4 w-4" /></a>
+          </div>
+          <div class="article-related-grid">
+            {relatedPosts.map((related) => <PostCard post={related} />)}
+          </div>
+        </section>
+      )}
+    </main>
+
+    <Footer />
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .article-page {
+    min-height: 100vh;
+    background: var(--nb-background);
+  }
+
+  .article-shell {
+    width: min(100% - 2rem, 72rem);
+    margin: 0 auto;
+    padding: 1.25rem 0 5rem;
+  }
+
+  .article-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    margin-bottom: 2rem;
+    color: var(--nb-muted-foreground);
+    font-size: 0.8125rem;
+  }
+
+  .article-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .article-breadcrumb a:hover {
+    color: var(--nb-foreground);
+  }
+
+  .article-breadcrumb span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .article-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 48rem) 13rem;
+    justify-content: center;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .article-grid-single {
+    grid-template-columns: minmax(0, 48rem);
+  }
+
+  .article-main {
+    min-width: 0;
+  }
+
+  .article-header {
+    margin-bottom: 2rem;
+  }
+
+  .article-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--nb-muted-foreground);
+    font-size: 0.8125rem;
+    font-weight: 650;
+  }
+
+  .article-header h1 {
+    max-width: 22ch;
+    margin: 0;
+    color: var(--nb-foreground);
+    font-size: 2.625rem;
+    font-weight: 720;
+    line-height: 1.16;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .article-deck {
+    max-width: 42rem;
+    margin: 1rem 0 0;
+    color: var(--nb-muted-foreground);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  .article-byline,
+  .article-facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--nb-muted-foreground);
+    font-size: 0.8125rem;
+  }
+
+  .article-byline {
+    margin-top: 1.25rem;
+  }
+
+  .article-facts {
+    gap: 0.5rem 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .article-facts span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .article-cover {
+    display: block;
+    width: 100%;
+    max-height: 34rem;
+    margin-top: 1.75rem;
+    border: 1px solid var(--nb-border);
+    border-radius: 0.5rem;
+    object-fit: contain;
+    background: var(--nb-muted);
+  }
+
+  .article-notice {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+    padding: 1rem 1.125rem;
+    border-left: 3px solid;
+    background: var(--nb-muted);
+  }
+
+  .article-notice strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--nb-foreground);
+  }
+
+  .article-notice p {
+    margin: 0;
+    color: var(--nb-muted-foreground);
+    font-size: 0.875rem;
+    line-height: 1.65;
+  }
+
+  .article-notice-expired {
+    border-color: var(--nb-danger);
+    background: var(--nb-danger-muted);
+  }
+
+  .article-notice-review {
+    border-color: var(--nb-warning);
+    background: var(--nb-warning-muted);
+  }
+
+  .article-prose {
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+
+  .article-prose :where(img:not([class])) {
+    display: block;
+    max-height: 44rem;
+    margin-inline: auto;
+    border: 1px solid var(--nb-border);
+    border-radius: 0.5rem;
+    object-fit: contain;
+  }
+
+  .article-disclosure,
+  .article-sources {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--nb-border);
+  }
+
+  .article-disclosure h2,
+  .article-sources h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: var(--nb-foreground);
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+
+  .article-disclosure p {
+    margin: 0.65rem 0 0;
+    color: var(--nb-muted-foreground);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .article-sources ol {
+    margin: 0.65rem 0 0;
+    padding-left: 1.25rem;
+  }
+
+  .article-sources li + li {
+    margin-top: 0.4rem;
+  }
+
+  .article-sources a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    color: var(--nb-foreground);
+    font-size: 0.875rem;
+    text-underline-offset: 3px;
+  }
+
+  .article-sources a span,
+  .article-toc a {
+    overflow-wrap: anywhere;
+  }
+
+  .article-revision {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--nb-border);
+    color: var(--nb-muted-foreground);
+    font-size: 0.75rem;
+  }
+
+  .article-toc {
+    position: sticky;
+    top: 5rem;
+  }
+
+  .article-toc > div {
+    padding-left: 1rem;
+    border-left: 1px solid var(--nb-border);
+  }
+
+  .article-toc strong {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--nb-foreground);
+    font-size: 0.75rem;
+  }
+
+  .article-toc nav {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .article-toc a {
+    color: var(--nb-muted-foreground);
+    font-size: 0.75rem;
+    line-height: 1.45;
+    text-decoration: none;
+  }
+
+  .article-toc a:hover {
+    color: var(--nb-foreground);
+  }
+
+  .article-toc .toc-depth-3 {
+    padding-left: 0.75rem;
+  }
+
+  .article-related {
+    max-width: 68rem;
+    margin: 5rem auto 0;
+    padding-top: 2rem;
+    border-top: 1px solid var(--nb-border);
+  }
+
+  .article-related-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .article-related-heading span {
+    color: var(--nb-muted-foreground);
+    font-size: 0.75rem;
+  }
+
+  .article-related-heading h2 {
+    margin: 0.25rem 0 0;
+    font-size: 1.5rem;
+    letter-spacing: 0;
+  }
+
+  .article-related-heading > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--nb-muted-foreground);
+    font-size: 0.8125rem;
+    text-decoration: none;
+  }
+
+  .article-related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .article-related .post-card-kicker {
+    justify-content: space-between;
+  }
+
+  @media (max-width: 62rem) {
+    .article-grid {
+      grid-template-columns: minmax(0, 48rem);
+    }
+
+    .article-toc {
+      display: none;
+    }
+  }
+
+  @media (max-width: 48rem) {
+    .article-shell {
+      width: min(100% - 1.25rem, 72rem);
+      padding-top: 1rem;
+    }
+
+    .article-breadcrumb {
+      margin-bottom: 1.5rem;
+    }
+
+    .article-header h1 {
+      font-size: 2rem;
+      line-height: 1.22;
+    }
+
+    .article-cover {
+      margin-top: 1.25rem;
+    }
+
+    .article-related {
+      margin-top: 3.5rem;
+    }
+
+    .article-related-grid {
+      grid-template-columns: 1fr;
+    }
+
+  }
+</style>

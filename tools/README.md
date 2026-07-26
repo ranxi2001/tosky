@@ -4,9 +4,9 @@
 
 ## 功能特性
 
-- 🔗 **链接自动更新**: 检测域名变化后自动更新 `page.tsx` 中的注册链接
+- 🔗 **链接自动更新**: 检测域名变化后自动更新 `src/data/referrals.json`
 - ☁️ **Cloudflare 同步**: 自动更新 301 重定向规则
-- 🚀 **自动部署**: git push 触发 Vercel 自动部署
+- 🚀 **自动部署**: git push 触发 Cloudflare Workers Builds
 - 📝 **精确替换**: 使用配置文件记录链接，精确替换无遗漏
 
 ## 文件说明
@@ -39,11 +39,10 @@ cp cloudflare_config.json.example cloudflare_config.json
 **link_config.json**:
 ```json
 {
-  "current_link": "https://www.example.com/join/88596413",
+  "current_link": "https://www.firgrouxywebb.com/join/88596413",
   "invite_code": "88596413",
   "files": [
-    "/home/tosky/src/app/page.tsx",
-    "/home/tosky/src/app/okx/page.tsx"
+    "src/data/referrals.json"
   ],
   "notion_url": "https://conscious-meerkat-b7e.notion.site/APK-www-xxx-com-join-xxx",
   "last_updated": null
@@ -65,7 +64,7 @@ cp cloudflare_config.json.example cloudflare_config.json
 ### 3. 运行脚本
 
 ```bash
-cd /home/tosky/tools
+cd /path/to/tosky/tools
 python3 link_updater.py
 ```
 
@@ -84,15 +83,14 @@ python3 link_updater.py
    https://www.newdomain.com/join/88596413
 
 3. 更新文件（精确替换）
-   - src/app/page.tsx
-   - src/app/okx/page.tsx
+   - src/data/referrals.json
 
 4. 更新 Cloudflare 301 重定向
    From: https://onefly.top/posts/8888.html
    To:   https://www.newdomain.com/join/88596413
 
 5. Git 提交并推送
-   自动触发 Vercel 部署
+   自动触发 Cloudflare Workers Builds
 ```
 
 ## 服务器定时任务
@@ -104,20 +102,20 @@ python3 link_updater.py
 crontab -e
 
 # 添加以下行（每 4 小时运行一次）
-0 */4 * * * cd /home/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /home/tosky/tools/cron.log 2>&1
+0 */4 * * * cd /path/to/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /path/to/tosky/tools/cron.log 2>&1
 ```
 
 ### 其他定时选项
 
 ```bash
 # 每小时运行
-0 * * * * cd /home/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /home/tosky/tools/cron.log 2>&1
+0 * * * * cd /path/to/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /path/to/tosky/tools/cron.log 2>&1
 
 # 每 6 小时运行
-0 */6 * * * cd /home/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /home/tosky/tools/cron.log 2>&1
+0 */6 * * * cd /path/to/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /path/to/tosky/tools/cron.log 2>&1
 
 # 每天凌晨 2 点运行
-0 2 * * * cd /home/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /home/tosky/tools/cron.log 2>&1
+0 2 * * * cd /path/to/tosky/tools && /usr/bin/python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.check_and_update()" >> /path/to/tosky/tools/cron.log 2>&1
 ```
 
 ### 查看定时任务
@@ -127,7 +125,7 @@ crontab -e
 crontab -l
 
 # 查看运行日志
-tail -f /home/tosky/tools/cron.log
+tail -f /path/to/tosky/tools/cron.log
 ```
 
 ## 日志示例
@@ -142,9 +140,8 @@ tail -f /home/tosky/tools/cron.log
   当前: https://www.oldomain.com/join/88596413
   新的: https://www.newdomain.com/join/88596413
 
-已更新: /home/tosky/src/app/page.tsx
-已更新: /home/tosky/src/app/okx/page.tsx
-共更新 2 个文件
+已更新: /path/to/tosky/src/data/referrals.json
+共更新 1 个文件
 
 ==================================================
 Cloudflare 301 重定向规则更新成功
@@ -165,7 +162,7 @@ git push 成功，部署将自动触发
 如果需要手动更新（不等待定时任务）：
 
 ```bash
-cd /home/tosky/tools
+cd /path/to/tosky/tools
 
 # 方式1: 交互模式
 python3 link_updater.py
@@ -183,7 +180,7 @@ python3 -c "from link_updater import LinkUpdater; u=LinkUpdater(); u.update_clou
 
 ```bash
 # 编辑配置
-nano /home/tosky/tools/link_config.json
+nano /path/to/tosky/tools/link_config.json
 
 # 修改 notion_url 为新的 URL
 # "notion_url": "https://xxx.notion.site/APK-www-newdomain-com-join-xxx"

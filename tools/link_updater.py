@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 链接自动更新脚本
-监控域名变化并自动更新 page.tsx 中的链接，然后提交 git 触发自动部署
+监控域名变化并自动更新集中返佣配置，然后提交 git 触发自动部署
 """
 
 import json
@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 # 配置文件路径
 CONFIG_PATH = Path(__file__).parent / 'link_config.json'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 def load_config() -> dict:
@@ -53,7 +54,10 @@ class LinkUpdater:
             check_interval: 检查间隔（秒）
         """
         self.config = load_config()
-        self.files = [Path(f) for f in self.config['files']]
+        self.files = []
+        for configured_file in self.config['files']:
+            file_path = Path(configured_file).expanduser()
+            self.files.append(file_path if file_path.is_absolute() else PROJECT_ROOT / file_path)
         self.check_interval = check_interval
 
         # 初始化 Cloudflare 更新器
@@ -216,10 +220,19 @@ class LinkUpdater:
             是否成功
         """
         try:
-            repo_path = Path("/home/tosky")
+            repo_path = PROJECT_ROOT
 
-            # git add 所有文件和 config
-            files_to_add = [str(f) for f in self.files] + [str(CONFIG_PATH)]
+            # 防止自动更新破坏已锁定的邀请码和手续费优惠标准
+            subprocess.run(
+                ['npm', 'run', 'check:content'],
+                cwd=repo_path,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+
+            # link_config.json 是本地状态且可能包含私有监控地址，不提交
+            files_to_add = [str(f) for f in self.files]
             subprocess.run(
                 ['git', 'add'] + files_to_add,
                 cwd=repo_path,

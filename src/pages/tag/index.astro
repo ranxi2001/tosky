@@ -1,0 +1,56 @@
+---
+import { getCollection } from "astro:content";
+import { Icon } from "astro-icon/components";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import { publishedPosts } from "@/lib/posts";
+
+const posts = publishedPosts(await getCollection("blog"));
+const tagEntries = Array.from(
+  posts.reduce((counts, post) => {
+    for (const tag of post.data.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    return counts;
+  }, new Map<string, number>()),
+)
+  .map(([tag, count]) => ({ tag, count }))
+  .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, "zh-CN"));
+const description = "按项目、交易所、链与主题浏览 ToSky 的 Web3 内容标签。";
+---
+
+<BaseLayout title="全部标签 | ToSky" description={description}>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main id="main-content" class="flex-1">
+      <header class="border-b border-border bg-card/40">
+        <div class="mx-auto w-full max-w-6xl px-5 py-10 lg:px-8">
+          <p class="text-sm font-medium text-primary">主题索引</p>
+          <h1 class="mt-2 text-3xl font-semibold text-foreground">全部标签</h1>
+          <p class="mt-3 max-w-2xl leading-7 text-muted-foreground">{description}</p>
+          <p class="mt-4 text-sm text-muted-foreground">{tagEntries.length} 个标签，来自 {posts.length} 篇文章</p>
+        </div>
+      </header>
+
+      <section aria-label="标签列表" class="mx-auto w-full max-w-6xl px-5 py-10 lg:px-8">
+        {tagEntries.length > 0 ? (
+          <ul class="grid list-none gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            {tagEntries.map(({ tag, count }) => (
+              <li>
+                <a href={`/tag/${encodeURIComponent(tag)}/`} class="flex min-h-16 items-center justify-between gap-4 rounded-md border border-border px-4 py-3 text-foreground no-underline transition-colors hover:border-border-strong hover:bg-accent/50">
+                  <span class="min-w-0 break-words font-medium">#{tag}</span>
+                  <span class="inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
+                    {count}
+                    <Icon name="ph:arrow-right" class="h-4 w-4" aria-hidden="true" />
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="border-y border-border py-10 text-muted-foreground">暂无标签。</p>
+        )}
+      </section>
+    </main>
+    <Footer />
+  </div>
+</BaseLayout>

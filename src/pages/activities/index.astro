@@ -1,0 +1,156 @@
+---
+import { getCollection } from "astro:content";
+import { Icon } from "astro-icon/components";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import StatusBadge from "@/components/StatusBadge.astro";
+import { formatDate, publishedPosts, type BlogPost } from "@/lib/posts";
+
+const campaigns = publishedPosts(await getCollection("blog")).filter(
+  (post) => post.data.category === "campaign",
+);
+const currentCampaigns = campaigns.filter((post) =>
+  ["active", "upcoming", "evergreen"].includes(post.data.status),
+);
+const reviewCampaigns = campaigns.filter((post) => post.data.status === "review");
+const expiredCampaigns = campaigns.filter((post) => post.data.status === "expired");
+const description = "按进行中、即将开始、长期有效、待复核和已结束状态浏览 Web3 交易所与链上活动。";
+
+function activityTiming(post: BlogPost) {
+  if (post.data.status === "upcoming" && post.data.startsAt) {
+    return `${formatDate(post.data.startsAt)} 开始`;
+  }
+  if (post.data.expiresAt) {
+    return `${formatDate(post.data.expiresAt)} 结束`;
+  }
+  if (post.data.status === "evergreen") return "长期有效，参与前仍需核验";
+  return `更新于 ${formatDate(post.data.updatedAt)}`;
+}
+---
+
+<BaseLayout title="活动状态 | ToSky" description={description}>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main id="main-content" class="flex-1">
+      <header class="border-b border-border bg-card/40">
+        <div class="mx-auto grid w-full max-w-6xl gap-6 px-5 py-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end lg:px-8">
+          <div>
+            <p class="text-sm font-medium text-primary">活动索引</p>
+            <h1 class="mt-2 text-3xl font-semibold text-foreground">活动状态</h1>
+            <p class="mt-3 max-w-2xl leading-7 text-muted-foreground">{description}</p>
+          </div>
+          <dl class="grid grid-cols-3 gap-5 border-l-2 border-primary pl-5">
+            <div>
+              <dt class="text-xs text-muted-foreground">可关注</dt>
+              <dd class="mt-1 text-2xl font-semibold text-foreground">{currentCampaigns.length}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted-foreground">待复核</dt>
+              <dd class="mt-1 text-2xl font-semibold text-foreground">{reviewCampaigns.length}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted-foreground">已结束</dt>
+              <dd class="mt-1 text-2xl font-semibold text-foreground">{expiredCampaigns.length}</dd>
+            </div>
+          </dl>
+        </div>
+      </header>
+
+      <div class="mx-auto w-full max-w-6xl px-5 py-10 lg:px-8">
+        <section aria-labelledby="current-activities-heading">
+          <h2 id="current-activities-heading" class="text-2xl font-semibold text-foreground">当前可关注</h2>
+          <p class="mt-2 text-sm leading-6 text-muted-foreground">包含进行中、即将开始和标记为长期有效的活动。</p>
+          {currentCampaigns.length > 0 ? (
+            <div class="mt-5 divide-y divide-border border-y border-border">
+              {currentCampaigns.map((post) => (
+                <article class="grid gap-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+                  <div>
+                    <div class="mb-2 flex flex-wrap items-center gap-2">
+                      <StatusBadge status={post.data.status} />
+                      {post.data.exchange && <span class="text-xs text-muted-foreground">{post.data.exchange}</span>}
+                      {post.data.chain && <span class="text-xs text-muted-foreground">{post.data.chain}</span>}
+                    </div>
+                    <h3 class="text-lg font-semibold leading-7"><a href={`/blog/${post.id}/`} class="text-foreground no-underline hover:text-primary">{post.data.title}</a></h3>
+                    <p class="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{post.data.description}</p>
+                  </div>
+                  <div class="flex items-center gap-3 text-sm text-muted-foreground md:justify-end">
+                    <span>{activityTiming(post)}</span>
+                    <a href={`/blog/${post.id}/`} aria-label={`阅读：${post.data.title}`} class="text-foreground hover:text-primary">
+                      <Icon name="ph:arrow-right" class="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div class="mt-5 border-y border-border py-6">
+              <p class="font-medium text-foreground">当前没有经确认仍可参与的活动。</p>
+              <p class="mt-2 text-sm leading-6 text-muted-foreground">新活动通过来源与时效复核后会显示在此处。</p>
+            </div>
+          )}
+        </section>
+
+        <section aria-labelledby="review-activities-heading" class="mt-12">
+          <h2 id="review-activities-heading" class="text-2xl font-semibold text-foreground">待复核</h2>
+          <p class="mt-2 text-sm leading-6 text-muted-foreground">规则或入口可能已经变化，请勿仅依据历史内容参与。</p>
+          {reviewCampaigns.length > 0 ? (
+            <div class="mt-5 divide-y divide-border border-y border-border">
+              {reviewCampaigns.map((post) => (
+                <article class="grid gap-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+                  <div>
+                    <div class="mb-2 flex flex-wrap items-center gap-2">
+                      <StatusBadge status={post.data.status} />
+                      {post.data.exchange && <span class="text-xs text-muted-foreground">{post.data.exchange}</span>}
+                      {post.data.chain && <span class="text-xs text-muted-foreground">{post.data.chain}</span>}
+                    </div>
+                    <h3 class="text-lg font-semibold leading-7"><a href={`/blog/${post.id}/`} class="text-foreground no-underline hover:text-primary">{post.data.title}</a></h3>
+                    <p class="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{post.data.description}</p>
+                  </div>
+                  <div class="flex items-center gap-3 text-sm text-muted-foreground md:justify-end">
+                    <span>{activityTiming(post)}</span>
+                    <a href={`/blog/${post.id}/`} aria-label={`阅读：${post.data.title}`} class="text-foreground hover:text-primary">
+                      <Icon name="ph:arrow-right" class="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p class="mt-5 border-y border-border py-6 text-muted-foreground">没有待复核活动。</p>
+          )}
+        </section>
+
+        <section aria-labelledby="expired-activities-heading" class="mt-12">
+          <h2 id="expired-activities-heading" class="text-2xl font-semibold text-foreground">已结束</h2>
+          <p class="mt-2 text-sm leading-6 text-muted-foreground">以下页面作为历史记录保留，不代表当前仍有奖励或可参与入口。</p>
+          {expiredCampaigns.length > 0 ? (
+            <div class="mt-5 divide-y divide-border border-y border-border">
+              {expiredCampaigns.map((post) => (
+                <article class="grid gap-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+                  <div>
+                    <div class="mb-2 flex flex-wrap items-center gap-2">
+                      <StatusBadge status={post.data.status} />
+                      {post.data.exchange && <span class="text-xs text-muted-foreground">{post.data.exchange}</span>}
+                    </div>
+                    <h3 class="text-lg font-semibold leading-7"><a href={`/blog/${post.id}/`} class="text-foreground no-underline hover:text-primary">{post.data.title}</a></h3>
+                    <p class="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{post.data.description}</p>
+                  </div>
+                  <div class="flex items-center gap-3 text-sm text-muted-foreground md:justify-end">
+                    <span>{activityTiming(post)}</span>
+                    <a href={`/blog/${post.id}/`} aria-label={`阅读：${post.data.title}`} class="text-foreground hover:text-primary">
+                      <Icon name="ph:arrow-right" class="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p class="mt-5 border-y border-border py-6 text-muted-foreground">暂无已结束活动。</p>
+          )}
+        </section>
+      </div>
+    </main>
+    <Footer />
+  </div>
+</BaseLayout>
