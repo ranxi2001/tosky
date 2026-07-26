@@ -45,15 +45,13 @@ a {
   text-decoration: none;
 }
 
-.brand-mark {
-  display: grid;
+.brand-logo {
+  display: block;
   width: 1.75rem;
   height: 1.75rem;
-  place-items: center;
+  flex: 0 0 auto;
   border-radius: 6px;
-  background: var(--nb-primary);
-  color: var(--nb-primary-foreground);
-  font-size: 0.875rem;
+  object-fit: cover;
 }
 
 .desktop-nav {
