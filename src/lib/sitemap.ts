@@ -14,15 +14,13 @@ function escapeXml(value: string) {
 
 export async function createSitemap() {
   const posts = publishedPosts(await getCollection("blog"));
-  const staticPaths = ["/", "/blog/", "/activities/", "/tag/", "/okx/", "/about/"];
-  const tags = Array.from(new Set(posts.flatMap((post) => post.data.tags)));
+  const staticPaths = ["/", "/blog/", "/activities/", "/okx/", "/about/"];
   const entries: Array<{ loc: string; lastmod?: string }> = [
     ...staticPaths.map((path) => ({ loc: new URL(path, site).href })),
     ...posts.filter((post) => !post.data.noindex).map((post) => ({
       loc: new URL(`/blog/${post.id}/`, site).href,
       lastmod: post.data.updatedAt.toISOString(),
     })),
-    ...tags.map((tag) => ({ loc: new URL(`/tag/${encodeURIComponent(tag)}/`, site).href })),
   ];
   const urls = entries
     .map(({ loc, lastmod }) => `  <url><loc>${escapeXml(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>`)

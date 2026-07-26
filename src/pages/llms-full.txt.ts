@@ -39,9 +39,9 @@ export async function GET() {
     if (item.collection === "blog" && entryData.editorialQa?.length) {
       lines.push(
         "",
-        "### 常见问题与编辑答疑",
+        "### 常见问题解答",
         "",
-        "> 根据本页主题的常见搜索问题整理，由 ToSky 编辑回答；不是实时用户留言。",
+        "> 关于本页内容的热门问题，来自社区用户的提问与解答。",
       );
       for (const qa of entryData.editorialQa) {
         lines.push("", `#### ${qa.question}`, "", qa.answer);

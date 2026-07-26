@@ -30,7 +30,7 @@ const { tag, posts } = Astro.props;
 const description = `浏览 ToSky 中标记为 ${tag} 的 Web3 文章，共 ${posts.length} 篇。`;
 ---
 
-<BaseLayout title={`#${tag} | ToSky`} description={description}>
+<BaseLayout title={`#${tag}`} description={description} noindex={true}>
   <div class="flex min-h-screen flex-col">
     <Header />
     <main id="main-content" class="flex-1">

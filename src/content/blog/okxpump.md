@@ -27,7 +27,7 @@ tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
 draft: false
-noindex: false
+noindex: true
 ---
 
 向欧易账户充值并交易PUMP，解锁丰厚奖励。

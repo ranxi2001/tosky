@@ -3,6 +3,7 @@ dist/
 .astro/
 .nimbus/
 .wrangler/
+.claude/skills/local-dev
 
 .env
 .env.local

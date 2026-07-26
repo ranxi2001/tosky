@@ -29,7 +29,7 @@ tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
 draft: false
-noindex: false
+noindex: true
 ---
 
 最近WLFI的流量真的特别火，所以我们也上了新币活动，同时所有没开过策略交易的新老用户都可以领取10U策略体验！

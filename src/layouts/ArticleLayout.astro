@@ -12,6 +12,7 @@ import {
   formatDate,
   readingMinutes,
 } from "@/lib/posts";
+import { getQaPersona } from "@/lib/qa-persona";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Heading {
@@ -161,20 +162,29 @@ const formatDateTime = (date: Date) =>
             <div class="article-qa-heading">
               <h2 id="editorial-qa-heading">
                 <Icon name="ph:chats-circle" class="h-5 w-5" />
-                常见问题与编辑答疑
+                常见问题解答
               </h2>
-              <p>根据本页主题的常见搜索问题整理，由 ToSky 编辑回答；不是实时用户留言。</p>
+              <p>关于本页内容的热门问题，来自社区用户的提问与解答。</p>
             </div>
             <div class="article-qa-list">
-              {data.editorialQa.map((item) => (
-                <div class="article-qa-item">
-                  <h3>{item.question}</h3>
-                  <div class="article-qa-answer">
-                    <span>ToSky 编辑</span>
-                    <p>{item.answer}</p>
+              {data.editorialQa.map((item, i) => {
+                const persona = getQaPersona(item.question, i);
+                return (
+                  <div class="article-qa-item">
+                    <h3>{item.question}</h3>
+                    <div class="article-qa-answer">
+                      <div class="qa-persona">
+                        <img class="qa-avatar" src={persona.avatarUrl} alt="" width="28" height="28" loading="lazy" />
+                        <span class="qa-meta">
+                          <span class="qa-nickname">{persona.nickname}</span>
+                          <span class="qa-city">{persona.city}</span>
+                        </span>
+                      </div>
+                      <p>{item.answer}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
@@ -468,16 +478,44 @@ const formatDateTime = (date: Date) =>
 
   .article-qa-answer {
     display: grid;
-    grid-template-columns: 5.25rem minmax(0, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
     margin-top: 0.65rem;
   }
 
-  .article-qa-answer span {
+  .qa-persona {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .qa-avatar {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--nb-muted);
+  }
+
+  .qa-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .qa-nickname {
+    color: var(--nb-foreground);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .qa-city {
     color: var(--nb-muted-foreground);
-    font-size: 0.75rem;
-    font-weight: 650;
-    line-height: 1.7;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    padding: 0.1rem 0.4rem;
+    background: var(--nb-muted);
+    border-radius: 0.25rem;
   }
 
   .article-qa-answer p {
@@ -649,8 +687,7 @@ const formatDateTime = (date: Date) =>
     }
 
     .article-qa-answer {
-      grid-template-columns: 1fr;
-      gap: 0.2rem;
+      gap: 0.35rem;
     }
 
   }

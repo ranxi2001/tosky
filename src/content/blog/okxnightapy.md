@@ -29,7 +29,7 @@ tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
 draft: false
-noindex: false
+noindex: true
 ---
 
 什么！？年化7200%？
