@@ -361,7 +361,7 @@ async function validateFile(file, affiliateData, now) {
       officialUrl &&
       (officialUrl.protocol !== "https:" ||
         officialUrl.hostname !== "www.okx.com" ||
-        !/^\/help\/[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(officialUrl.pathname) ||
+        !/^\/zh-hans\/help\/[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(officialUrl.pathname) ||
         officialUrl.search ||
         officialUrl.hash)
     ) {
