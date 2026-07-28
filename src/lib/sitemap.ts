@@ -14,7 +14,7 @@ function escapeXml(value: string) {
 
 export async function createSitemap() {
   const posts = publishedPosts(await getCollection("blog"));
-  const staticPaths = ["/", "/blog/", "/activities/", "/okx/", "/about/"];
+  const staticPaths = ["/", "/home/", "/blog/", "/activities/", "/about/"];
   const entries: Array<{ loc: string; lastmod?: string }> = [
     ...staticPaths.map((path) => ({ loc: new URL(path, site).href })),
     ...posts.filter((post) => !post.data.noindex).map((post) => ({

@@ -1,0 +1,142 @@
+---
+import { getCollection } from "astro:content";
+import { Icon } from "astro-icon/components";
+import { config } from "virtual:nimbus/config";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import PostCard from "@/components/PostCard.astro";
+import StatusBadge from "@/components/StatusBadge.astro";
+import { formatDate, publishedPosts } from "@/lib/posts";
+
+export const prerender = true;
+
+const posts = publishedPosts(await getCollection("blog"));
+const featuredPost = posts.find((post) => post.data.featured) ?? posts[0];
+const latestPosts = posts
+  .filter((post) => post.id !== featuredPost?.id)
+  .slice(0, 6);
+const campaigns = posts.filter((post) => post.data.category === "campaign");
+const currentCampaigns = campaigns.filter((post) =>
+  ["active", "upcoming", "evergreen"].includes(post.data.status),
+);
+const reviewCampaigns = campaigns.filter((post) => post.data.status === "review");
+const expiredCampaigns = campaigns.filter((post) => post.data.status === "expired");
+const campaignPreview = [
+  ...currentCampaigns,
+  ...reviewCampaigns,
+  ...expiredCampaigns,
+].slice(0, 4);
+---
+
+<BaseLayout title={config.title} description={config.description}>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main id="main-content" class="flex-1">
+      <section class="border-b border-border bg-card/40">
+        <div class="mx-auto grid w-full max-w-6xl gap-8 px-5 py-10 md:grid-cols-[minmax(0,1fr)_19rem] md:items-end lg:px-8">
+          <div class="max-w-3xl">
+            <p class="mb-3 text-sm font-medium text-primary">交易所与链上活动信息库</p>
+            <h1 class="text-4xl font-semibold leading-tight text-foreground">ToSky</h1>
+            <p class="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
+              跟踪 Web3 交易所优惠、链上活动与手续费规则，保留更新时间、活动状态和来源，便于参与前再次核验。
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <a href="/activities/" class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground no-underline hover:opacity-90">
+                查看活动
+                <Icon name="ph:arrow-right" class="h-4 w-4" aria-hidden="true" />
+              </a>
+              <a href="/blog/" class="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground no-underline hover:bg-accent">
+                全部文章
+              </a>
+            </div>
+          </div>
+
+          <aside aria-label="活动状态摘要" class="border-l-2 border-primary pl-5">
+            <p class="text-sm font-medium text-foreground">活动状态</p>
+            <dl class="mt-3 grid grid-cols-3 gap-4">
+              <div>
+                <dt class="text-xs text-muted-foreground">可关注</dt>
+                <dd class="mt-1 text-2xl font-semibold text-foreground">{currentCampaigns.length}</dd>
+              </div>
+              <div>
+                <dt class="text-xs text-muted-foreground">待复核</dt>
+                <dd class="mt-1 text-2xl font-semibold text-foreground">{reviewCampaigns.length}</dd>
+              </div>
+              <div>
+                <dt class="text-xs text-muted-foreground">已结束</dt>
+                <dd class="mt-1 text-2xl font-semibold text-foreground">{expiredCampaigns.length}</dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <div class="mx-auto w-full max-w-6xl px-5 py-10 lg:px-8">
+        {featuredPost && (
+          <section aria-labelledby="featured-heading">
+            <div class="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <p class="text-sm font-medium text-primary">编辑推荐</p>
+                <h2 id="featured-heading" class="mt-1 text-2xl font-semibold text-foreground">先从这里开始</h2>
+              </div>
+            </div>
+            <PostCard post={featuredPost} featured />
+          </section>
+        )}
+
+        <section aria-labelledby="latest-heading" class="mt-14">
+          <div class="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p class="text-sm font-medium text-primary">最近更新</p>
+              <h2 id="latest-heading" class="mt-1 text-2xl font-semibold text-foreground">最新文章</h2>
+            </div>
+            <a href="/blog/" class="inline-flex items-center gap-1 text-sm font-medium text-foreground no-underline hover:text-primary">
+              查看全部
+              <Icon name="ph:arrow-right" class="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
+          {latestPosts.length > 0 ? (
+            <div class="grid gap-5 md:grid-cols-2">
+              {latestPosts.map((post) => <PostCard post={post} />)}
+            </div>
+          ) : (
+            <p class="border-t border-border py-6 text-muted-foreground">暂无更多文章。</p>
+          )}
+        </section>
+
+        <section aria-labelledby="campaign-heading" class="mt-14 border-t border-border pt-10">
+          <div class="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p class="text-sm font-medium text-primary">时效追踪</p>
+              <h2 id="campaign-heading" class="mt-1 text-2xl font-semibold text-foreground">活动状态</h2>
+            </div>
+            <a href="/activities/" class="inline-flex items-center gap-1 text-sm font-medium text-foreground no-underline hover:text-primary">
+              完整列表
+              <Icon name="ph:arrow-right" class="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
+
+          {currentCampaigns.length === 0 && (
+            <p class="mb-5 border-l-2 border-warning bg-warning/10 px-4 py-3 text-sm leading-6 text-foreground">
+              当前没有经确认仍在进行的活动；待复核与历史内容会明确显示状态。
+            </p>
+          )}
+
+          <div class="divide-y divide-border border-y border-border">
+            {campaignPreview.map((post) => (
+              <a href={`/blog/${post.id}/`} class="grid gap-3 py-4 text-foreground no-underline hover:text-primary sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+                <StatusBadge status={post.data.status} />
+                <span class="font-medium leading-6">{post.data.title}</span>
+                <time datetime={post.data.publishedAt.toISOString()} class="text-sm text-muted-foreground">
+                  {formatDate(post.data.publishedAt)}
+                </time>
+              </a>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+    <Footer />
+  </div>
+</BaseLayout>

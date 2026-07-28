@@ -184,6 +184,8 @@ Preview command: npx wrangler versions upload
 
 ## 迁移与 URL 稳定性
 
+根路径 `/` 使用 `src/content/docs/okx.mdx` 的 OKX 指南内容，`/okx/` 永久重定向到根路径；综合内容首页位于 `/home/`。
+
 原 Wisp 内容已经迁入 `src/content/blog/`。博客路由继续使用 `/blog/<slug>/`，因此下列既有 slug 必须保留：
 
 ```text
