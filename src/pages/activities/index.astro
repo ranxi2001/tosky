@@ -2,10 +2,12 @@
 import { getCollection } from "astro:content";
 import { Icon } from "astro-icon/components";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import AffiliateCard from "@/components/AffiliateCard.astro";
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
 import StatusBadge from "@/components/StatusBadge.astro";
 import { formatDate, publishedPosts, type BlogPost } from "@/lib/posts";
+import { DEFAULT_REFERRAL_KEY } from "@/lib/referrals";
 
 const campaigns = publishedPosts(await getCollection("blog")).filter(
   (post) => post.data.category === "campaign",
@@ -58,6 +60,8 @@ function activityTiming(post: BlogPost) {
       </header>
 
       <div class="mx-auto w-full max-w-6xl px-5 py-10 lg:px-8">
+        <AffiliateCard referral={DEFAULT_REFERRAL_KEY} />
+
         <section aria-labelledby="current-activities-heading">
           <h2 id="current-activities-heading" class="text-2xl font-semibold text-foreground">当前可关注</h2>
           <p class="mt-2 text-sm leading-6 text-muted-foreground">包含进行中、即将开始和标记为长期有效的活动。</p>

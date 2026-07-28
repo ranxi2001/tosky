@@ -3,6 +3,8 @@ import referrals from "../data/referrals.json";
 export type ReferralKey = keyof typeof referrals;
 export type Referral = (typeof referrals)[ReferralKey];
 
+export const DEFAULT_REFERRAL_KEY = "okx" satisfies ReferralKey;
+
 export function getReferral(key: string | undefined): Referral | undefined {
   if (!key || !(key in referrals)) return undefined;
   return referrals[key as ReferralKey];

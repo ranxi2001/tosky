@@ -1,10 +1,12 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import AffiliateCard from "@/components/AffiliateCard.astro";
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
 import PostCard from "@/components/PostCard.astro";
 import { categoryLabels, publishedPosts } from "@/lib/posts";
+import { DEFAULT_REFERRAL_KEY } from "@/lib/referrals";
 
 const posts = publishedPosts(await getCollection("blog"));
 const categoryCount = new Set(posts.map((post) => post.data.category)).size;
@@ -25,6 +27,8 @@ const description = "ToSky 全部 Web3 交易所、链上活动、手续费与�
       </header>
 
       <section aria-label="文章列表" class="mx-auto w-full max-w-6xl px-5 py-10 lg:px-8">
+        <AffiliateCard referral={DEFAULT_REFERRAL_KEY} />
+
         {posts.length > 0 ? (
           <div class="grid gap-5 md:grid-cols-2">
             {posts.map((post) => <PostCard post={post} />)}

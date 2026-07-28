@@ -13,6 +13,7 @@ import {
   readingMinutes,
 } from "@/lib/posts";
 import { getQaPersona } from "@/lib/qa-persona";
+import { DEFAULT_REFERRAL_KEY } from "@/lib/referrals";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Heading {
@@ -152,7 +153,7 @@ const formatDateTime = (date: Date) =>
             </aside>
           )}
 
-          {data.affiliateKey && <AffiliateCard referral={data.affiliateKey} />}
+          <AffiliateCard referral={data.affiliateKey ?? DEFAULT_REFERRAL_KEY} />
 
           <div class="docs-content article-prose">
             <slot />

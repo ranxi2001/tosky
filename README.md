@@ -132,7 +132,7 @@ OKX_SYNC_APP_PRIVATE_KEY Repository secret，GitHub App private key
 
 ### 返佣链接
 
-不要在 Markdown 正文中粘贴注册链接、邀请码参数或渠道链接。只需设置已定义的 `affiliateKey`，展示组件会从 `src/data/referrals.json` 取出入口，并统一添加返佣披露与链接属性。
+不要在 Markdown 正文中粘贴注册链接、邀请码参数或渠道链接。文章与活动详情页默认展示 OKX 注册卡片；需要其他平台时设置已定义的 `affiliateKey` 覆盖默认值。展示组件会从 `src/data/referrals.json` 取出入口，并统一添加返佣披露与链接属性。
 
 当前已经由项目所有者验证的标准是：OKX 邀请码 `88596413`，终身最高 20% 官方手续费返佣（手续费八折）；Binance 邀请码 `TOSKY`，10% 手续费优惠；OKX DEX 邀请码 `ONEFLY`，20% 服务费优惠。除非项目所有者明确要求，不要修改或弱化这些比例与邀请码。
 

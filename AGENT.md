@@ -53,7 +53,7 @@ npm run check
 
 ## 返佣与来源
 
-设置 `affiliateKey` 后，文章页会从 `src/data/referrals.json` 自动展示合作卡片，并输出 `rel="sponsored nofollow noopener noreferrer"`。普通官方规则链接放进 `sources`，不要把来源 URL 和返佣入口混为一体。
+文章和活动详情页默认从 `src/data/referrals.json` 展示 OKX 注册卡片；设置 `affiliateKey` 可覆盖为其他已定义平台。卡片链接统一输出 `rel="sponsored nofollow noopener noreferrer"`。普通官方规则链接放进 `sources`，不要把来源 URL 和返佣入口混为一体。
 
 ## Agent 与搜索表面
 
@@ -69,7 +69,7 @@ npm run check
 - 同步文章在 PR 中已经是 `draft: false`、`noindex: false`；PR 是发布闸门，合并后才会进入生产索引。不得让同步工作流直推或自动合并 `main`。
 - 自动正文只陈述官方列表可验证的来源、标题和时间，不推测地区、资格、截止时间或奖励。合并前应打开官方详情页补齐这些字段；有明确起止时间时同步设置 `startsAt`、`expiresAt` 和正确状态。
 - 同步器不会覆盖已经生成的 Markdown。官方标题或更新时间变化只更新状态索引，由编辑决定是否修改正文。
-- 自动文章不设置 `affiliateKey`。需要返佣入口时仍按既有披露策略人工添加，正文不得粘贴邀请链接。
+- 自动文章不设置 `affiliateKey`，由文章布局显示默认 OKX 注册卡片；需要其他平台入口时按既有披露策略人工设置，正文不得粘贴邀请链接。
 
 ## 代码约定
 
