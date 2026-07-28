@@ -3,7 +3,7 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const OKX_ACTIVITY_SOURCE_URL =
-  "https://www.okx.com/help/section/latest-events";
+  "https://www.okx.com/zh-hans/help/section/latest-events";
 export const OKX_ACTIVITY_STATE_VERSION = 1;
 export const OKX_ACTIVITY_COVER =
   "/images/posts/dac8b2a1-c1ed-446b-bbcf-80cba198ce4a.png";
@@ -11,6 +11,8 @@ export const OKX_ACTIVITY_COVER =
 const OKX_HOSTNAME = "www.okx.com";
 const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+const BROWSER_USER_AGENT =
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36";
 
 function sha256(value) {
   return `sha256:${createHash("sha256").update(value).digest("hex")}`;
@@ -99,7 +101,7 @@ function normalizeOfficialItem(item) {
   const title = normalizeTitle(item.title);
   const publishedAt = toIsoDate(Number(item.publishTime), `${id}.publishTime`);
   const sourceUpdatedAt = toIsoDate(Number(item.updatedAt), `${id}.updatedAt`);
-  const sourceUrl = new URL(`/help/${officialSlug}`, `https://${OKX_HOSTNAME}`).href;
+  const sourceUrl = new URL(`/zh-hans/help/${officialSlug}`, `https://${OKX_HOSTNAME}`).href;
   const normalized = { id, officialSlug, title, sourceUrl, publishedAt, sourceUpdatedAt };
   return { ...normalized, sourceHash: sha256(JSON.stringify(normalized)) };
 }
@@ -183,7 +185,8 @@ export async function fetchOfficialOkxPage(value, fetchImpl = fetch) {
     const response = await fetchImpl(url, {
       headers: {
         accept: "text/html,application/xhtml+xml",
-        "user-agent": "ToSky-OKX-Activity-Sync/1.0 (+https://tosky.top)",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+        "user-agent": BROWSER_USER_AGENT,
       },
       redirect: "manual",
       signal: AbortSignal.timeout(15_000),
@@ -213,7 +216,7 @@ export async function fetchOkxActivities({
   if (!Number.isInteger(maxPages) || maxPages < 1 || maxPages > 10) {
     throw new Error("maxPages 必须是 1 到 10 的整数");
   }
-  const source = assertOfficialOkxUrl(sourceUrl, "/help/section/latest-events");
+  const source = assertOfficialOkxUrl(sourceUrl, "/zh-hans/help/section/latest-events");
   source.search = "";
   source.hash = "";
   source.pathname = source.pathname.replace(/\/$/u, "");
@@ -246,7 +249,7 @@ function compareItems(a, b) {
 }
 
 export function isLikelyOkxActivity(item) {
-  return /\b(?:airdrop|bonus|campaign|competition|earn|event|giveaway|launchpool|prize|promotion|rewards?|share)\b/iu.test(
+  return /(?:空投|奖励|瓜分|活动|交易赛|赚币|闪赚|申购|竞赛|推广)|\b(?:airdrop|bonus|campaign|competition|earn|event|giveaway|launchpool|prize|promotion|rewards?|share)\b/iu.test(
     item.title,
   );
 }

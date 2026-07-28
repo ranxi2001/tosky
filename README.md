@@ -110,7 +110,7 @@ noindex: false
 
 ## OKX 官方活动自动同步
 
-同步器读取 [OKX Latest events](https://www.okx.com/help/section/latest-events) 页面内的结构化官方列表，不复制活动正文，也不使用第三方聚合数据。首次运行会把现有列表建立为基线，并为最新一条符合活动关键词的记录生成可收录文章；后续每个 PR 最多新增一篇。生成页已经设置 `draft: false`、`noindex: false`，但自动化只创建草稿 PR，合并后才会发布和进入 Sitemap、RSS、Pagefind 与 Agent 语料。
+同步器读取 [OKX Latest events](https://www.okx.com/zh-hans/help/section/latest-events) 中文官方页面内的结构化列表，不复制活动正文，也不使用第三方聚合数据。固定语言路径可以避免 GitHub Runner 按出口地区落到没有活动数据的美区页面。首次运行会把现有列表建立为基线，并为最新一条符合活动关键词的记录生成可收录文章；后续每个 PR 最多新增一篇。生成页已经设置 `draft: false`、`noindex: false`，但自动化只创建草稿 PR，合并后才会发布和进入 Sitemap、RSS、Pagefind 与 Agent 语料。
 
 本地检查数据与输出：
 

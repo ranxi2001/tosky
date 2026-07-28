@@ -192,7 +192,7 @@ jobs:
           {
             echo "## 自动同步摘要"
             echo
-            echo "本 PR 从 [OKX 官方 Latest events](https://www.okx.com/help/section/latest-events) 生成可索引活动页；合并后才会发布。"
+            echo "本 PR 从 [OKX 官方 Latest events](https://www.okx.com/zh-hans/help/section/latest-events) 生成可索引活动页；合并后才会发布。"
             echo
             echo "- 抓取记录：$FETCHED"
             echo "- 新发现：$DISCOVERED"

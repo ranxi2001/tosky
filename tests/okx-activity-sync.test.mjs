@@ -6,6 +6,8 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   assertOfficialOkxUrl,
+  fetchOfficialOkxPage,
+  isLikelyOkxActivity,
   parseOkxActivityPage,
   syncOkxActivityArticles,
 } from "../scripts/lib/okx-activity-sync.mjs";
@@ -17,13 +19,34 @@ test("解析 OKX SSR 活动列表并规范化来源", () => {
   const page = parseOkxActivityPage(fixture);
   assert.equal(page.total, 3);
   assert.equal(page.items[0].title, "Alpha & Beta rewards");
-  assert.equal(page.items[0].sourceUrl, "https://www.okx.com/help/alpha-rewards");
+  assert.equal(page.items[0].sourceUrl, "https://www.okx.com/zh-hans/help/alpha-rewards");
   assert.match(page.items[0].sourceHash, /^sha256:[a-f0-9]{64}$/u);
 });
 
 test("拒绝非 OKX HTTPS 来源", () => {
   assert.throws(() => assertOfficialOkxUrl("https://example.com/help/event"), /只允许访问/u);
   assert.throws(() => assertOfficialOkxUrl("http://www.okx.com/help/event"), /只允许访问/u);
+});
+
+test("使用浏览器兼容请求头读取 OKX 官方页面", async () => {
+  let requestOptions;
+  const html = await fetchOfficialOkxPage(
+    "https://www.okx.com/zh-hans/help/section/latest-events",
+    async (_url, options) => {
+      requestOptions = options;
+      return new Response(fixture, { headers: { "content-type": "text/html" } });
+    },
+  );
+
+  assert.equal(html, fixture);
+  assert.match(requestOptions.headers["user-agent"], /^Mozilla\/5\.0/u);
+  assert.equal(requestOptions.headers["accept-language"], "zh-CN,zh;q=0.9,en;q=0.8");
+});
+
+test("识别中英文 OKX 活动标题并排除普通公告", () => {
+  assert.equal(isLikelyOkxActivity({ title: "欧易 x AEON 交易赚币：交易瓜分奖励" }), true);
+  assert.equal(isLikelyOkxActivity({ title: "Trade to share rewards" }), true);
+  assert.equal(isLikelyOkxActivity({ title: "公告：OKX 扩大机构服务范围" }), false);
 });
 
 test("可收录文章首次生成、重复运行幂等且不覆盖人工编辑", async () => {

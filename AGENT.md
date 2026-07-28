@@ -64,7 +64,7 @@ npm run check
 
 ## OKX 官方活动同步
 
-- `npm run sync:okx` 只读取 `https://www.okx.com/help/section/latest-events` 的结构化列表；不得改成转载第三方活动聚合页。
+- `npm run sync:okx` 只读取 `https://www.okx.com/zh-hans/help/section/latest-events` 的结构化列表；固定中文语言路径以避免按 GitHub Runner 出口地区返回空列表，不得改成转载第三方活动聚合页。
 - 自动文章使用 `okx-event-*` 永久 slug，并保留 `syncProvider`、`syncSourceId`、`syncSourceUrl`、来源时间和哈希字段。不要手工删除这些溯源字段或修改 `src/data/okx-activity-sync.json` 的 ID 映射。
 - 同步文章在 PR 中已经是 `draft: false`、`noindex: false`；PR 是发布闸门，合并后才会进入生产索引。不得让同步工作流直推或自动合并 `main`。
 - 自动正文只陈述官方列表可验证的来源、标题和时间，不推测地区、资格、截止时间或奖励。合并前应打开官方详情页补齐这些字段；有明确起止时间时同步设置 `startsAt`、`expiresAt` 和正确状态。
