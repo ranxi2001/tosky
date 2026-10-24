@@ -43,7 +43,7 @@ const toc = tocOn && tocConfig !== false ? getTOC(headings, tocConfig) : false;
 const markdownPath = `/${entry.id}/index.md`;
 const markdownUrl = Astro.site ? new URL(markdownPath, Astro.site).href : markdownPath;
 const socialImage = entry.data.socialImage ?? `/og/${entry.id}.png`;
-const redirectsToHomepage = entry.id === "okx";
+const isReferralShortlink = entry.id === "okx";
 ---
 
 <DocsLayout
@@ -56,8 +56,8 @@ const redirectsToHomepage = entry.id === "okx";
   mode={entry.data.mode}
   banner={entry.data.banner}
   head={entry.data.head}
-  searchable={redirectsToHomepage ? false : entry.data.searchable}
-  noindex={redirectsToHomepage || entry.data.noindex}
+  searchable={isReferralShortlink ? false : entry.data.searchable}
+  noindex={isReferralShortlink || entry.data.noindex}
   markdownUrl={markdownUrl}
   socialImage={socialImage}
   lastUpdated={lastUpdated}

@@ -206,11 +206,13 @@ Deploy command: npx wrangler deploy
 Preview command: npx wrangler versions upload
 ```
 
-`wrangler.jsonc` 会将根域绑定为 Worker Custom Domain，并让 `www.tosky.top` 以 308 保留路径和查询参数跳转到根域。站点正文仍是纯静态输出，不需要 Wisp 环境变量、数据库绑定或 Astro Cloudflare adapter。
+`wrangler.jsonc` 会将根域绑定为 Worker Custom Domain；除 OKX 注册短链外，`www.tosky.top` 以 308 保留路径和查询参数跳转到根域。站点正文仍是纯静态输出，不需要 Wisp 环境变量、数据库绑定或 Astro Cloudflare adapter。
 
 ## 迁移与 URL 稳定性
 
-根路径 `/` 使用 `src/content/docs/okx.mdx` 的 OKX 指南内容，`/okx/` 永久重定向到根路径；综合内容首页位于 `/home/`。
+分享稳定注册链接使用 `https://tosky.top/okx`（`/okx/` 及 `www` 同路径也支持）：Worker 直接返回 `302` 和 `Cache-Control: no-store`，目标只取构建时集中配置 `src/data/referrals.json` 的 `okx.url`，保留固定邀请码 `88596413`。同步更新配置并部署后，短链跟随新目标；不把请求查询参数或 fragment 拼入目标，也不接受 `url` 等任意跳转参数。新响应不再缓存旧的回首页 308；已经被浏览器保存的旧永久重定向可能需要清除站点缓存。
+
+根路径 `/` 继续使用 `src/content/docs/okx.mdx` 的 OKX 指南内容，`/okx/index.md` 等内容资源保留；综合内容首页位于 `/home/`。本地定向验证运行 `npm run test:worker`，完整 `npm run check` 也包含这些测试；部署后的 `npm run check:production` 使用手动重定向模式检查短链，不访问目标注册页。
 
 原 Wisp 内容已经迁入 `src/content/blog/`。博客路由继续使用 `/blog/<slug>/`，因此下列既有 slug 必须保留：
 

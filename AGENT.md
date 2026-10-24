@@ -61,6 +61,7 @@ npm run check
 - `/llms.txt`、`/llms-full.txt` 与 `/blog/llms.txt` 供 Agent 发现内容。
 - `draft: true` 或 `noindex: true` 的内容不得进入 RSS、Sitemap、Pagefind 或 Agent 语料。
 - 原有文章 slug、`/tag/`、`/rss`、`/api/sitemap` 和 `/okx/` 是稳定路径。
+- `/okx` 与 `/okx/` 是稳定 OKX 注册短链，Worker 从 `src/data/referrals.json` 的 `okx.url` 读取构建时目标，以 `302` 和 `Cache-Control: no-store` 直达该入口；不回首页，不拼接请求的查询参数或 fragment，不接受任意跳转目标。`www` 上的同路径也直接跳转。OKX 指南正文继续位于 `/`，`/okx/index.md` 等内容资源不受短链影响。
 
 ## OKX 官方活动同步
 

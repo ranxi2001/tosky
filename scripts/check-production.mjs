@@ -1,3 +1,5 @@
+import referrals from "../src/data/referrals.json" with { type: "json" };
+
 const siteUrl = new URL(process.env.SITE_URL ?? "https://tosky.top");
 const attempts = Number.parseInt(process.env.PRODUCTION_CHECK_ATTEMPTS ?? "24", 10);
 const intervalMs = Number.parseInt(process.env.PRODUCTION_CHECK_INTERVAL_MS ?? "10000", 10);
@@ -8,11 +10,13 @@ async function fetchResult(path, options = {}) {
   const url = path.startsWith("http") ? new URL(path) : new URL(path, siteUrl);
   const response = await fetch(url, {
     redirect: options.redirect ?? "follow",
+    method: options.method ?? "GET",
     headers: { "user-agent": "ToSky production check" },
   });
 
   return {
     body: await response.text(),
+    cacheControl: response.headers.get("cache-control") ?? "",
     contentType: response.headers.get("content-type") ?? "",
     location: response.headers.get("location") ?? "",
     status: response.status,
@@ -22,11 +26,10 @@ async function fetchResult(path, options = {}) {
 
 async function inspectProduction() {
   const failures = [];
-  const [root, home, okx, article, robots, sitemap, rss, llms, legacyRss, legacySitemap, legacyTag, www] =
+  const [root, home, article, robots, sitemap, rss, llms, legacyRss, legacySitemap, legacyTag, www, ...okxRedirects] =
     await Promise.all([
       fetchResult("/"),
       fetchResult("/home/"),
-      fetchResult("/okx/?source=production-check", { redirect: "manual" }),
       fetchResult("/blog/okx-and-binance-discount/"),
       fetchResult("/robots.txt"),
       fetchResult("/sitemap.xml"),
@@ -38,6 +41,12 @@ async function inspectProduction() {
       fetchResult("https://www.tosky.top/blog/?source=production-check", {
         redirect: "manual",
       }),
+      ...["/okx", "/okx/", "https://www.tosky.top/okx", "https://www.tosky.top/okx/"].flatMap((route) =>
+        ["GET", "HEAD"].map((method) => fetchResult(`${route}?source=production-check&url=https://example.invalid/`, {
+          redirect: "manual",
+          method,
+        })),
+      ),
     ]);
 
   const expect = (condition, message) => {
@@ -60,11 +69,11 @@ async function inspectProduction() {
     "/home/ canonical 异常",
   );
   expect(home.body.includes(">ToSky</h1>"), "/home/ 未显示原聚合首页");
-  expect(okx.status === 308, `/okx/ 应返回 308，实际为 ${okx.status}`);
-  expect(
-    okx.location === "https://tosky.top/?source=production-check",
-    `/okx/ 重定向未保留查询参数：${okx.location}`,
-  );
+  for (const okx of okxRedirects) {
+    expect(okx.status === 302, `/okx 短链应返回 302，实际为 ${okx.status}`);
+    expect(okx.location === referrals.okx.url, `/okx 短链应直达集中配置且忽略查询参数：${okx.location}`);
+    expect(okx.cacheControl === "no-store", `/okx 短链不得缓存：${okx.cacheControl}`);
+  }
   expect(article.status === 200, `文章页状态应为 200，实际为 ${article.status}`);
   expect(
     article.body.includes(
