@@ -1,0 +1,173 @@
+name: Sync OKX registration link
+
+on:
+  schedule:
+    - cron: "43 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Render and validate without pushing or opening a PR
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: okx-registration-link-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /data/development/cache/ms-playwright
+      BRANCH: automation/okx-referral-sync
+    steps:
+      - name: Check out main
+        # actions/checkout v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        # actions/setup-node v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install dependencies and Chromium
+        run: |
+          npm ci
+          sudo mkdir -p "$PLAYWRIGHT_BROWSERS_PATH"
+          sudo chown -R "$(id -u):$(id -g)" /data/development/cache
+          npx --no-install playwright install --with-deps chromium
+
+      - name: Inspect the independent automation PR
+        id: prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_sha=""
+          if git ls-remote --exit-code --heads origin "$BRANCH" > "$RUNNER_TEMP/referral-remote.txt"; then
+            git fetch --no-tags origin "refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}"
+            remote_sha="$(git rev-parse "refs/remotes/origin/${BRANCH}")"
+          else
+            status=$?
+            if [[ "$status" != 2 ]]; then exit "$status"; fi
+          fi
+          gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --state open --json number,isDraft > "$RUNNER_TEMP/referral-pr.json"
+          [[ "$(jq length "$RUNNER_TEMP/referral-pr.json")" -le 1 ]]
+          pr_number="$(jq -r '.[0].number // empty' "$RUNNER_TEMP/referral-pr.json")"
+          if [[ -n "$pr_number" ]]; then
+            [[ -n "$remote_sha" ]]
+            if [[ "$(jq -r '.[0].isDraft' "$RUNNER_TEMP/referral-pr.json")" != true ]]; then
+              echo "::error::注册同步 PR 已进入人工审查，拒绝覆盖非 Draft PR。"
+              exit 1
+            fi
+          fi
+          echo "remote_sha=$remote_sha" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+
+      - name: Test dynamic rendering and fail-closed behavior
+        run: npm run test:okx-referral-sync
+
+      - name: Render public Notion and update only okx.url
+        run: npm run sync:okx-referral -- --write --report "$RUNNER_TEMP/okx-referral-report.json"
+
+      - name: Run repository checks
+        run: npm run check
+
+      - name: Compare with main and the existing draft
+        id: changes
+        env:
+          REMOTE_SHA: ${{ steps.prepare.outputs.remote_sha }}
+          PR_NUMBER: ${{ steps.prepare.outputs.pr_number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r line; do
+            [[ -z "$line" || "${line:3}" == src/data/referrals.json ]] || { echo "::error::未授权路径变更"; exit 1; }
+          done < <(git status --porcelain=v1 --untracked-files=all)
+          git add -- src/data/referrals.json
+          changed=false
+          obsolete=false
+          if git diff --cached --quiet HEAD -- src/data/referrals.json; then
+            if [[ -n "$PR_NUMBER" ]]; then obsolete=true; fi
+          elif [[ -n "$PR_NUMBER" ]] && git diff --cached --quiet "$REMOTE_SHA" -- src/data/referrals.json; then
+            : # Identical source content: preserve the same branch and draft PR.
+          else
+            changed=true
+          fi
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "obsolete=$obsolete" >> "$GITHUB_OUTPUT"
+          {
+            echo "### OKX 注册入口同步"
+            echo "- Chromium 动态正文验证成功，候选唯一；仅允许 okx.url 变化。"
+            echo "- 分支内容需要更新：$changed；来源已与 main 相同：$obsolete。"
+            echo "- npm run test:okx-referral-sync 与 npm run check 已通过。"
+            if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && '${{ inputs.dry_run }}' == true ]]; then
+              echo "- Dry run：仅本地计算和校验，不写 Git 远端、不创建或修改 PR。"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create short-lived GitHub App token
+        id: app-token
+        if: (steps.changes.outputs.changed == 'true' || steps.changes.outputs.obsolete == 'true') && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        # actions/create-github-app-token v3; installed only on this repository.
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+        with:
+          client-id: ${{ vars.OKX_SYNC_APP_CLIENT_ID }}
+          private-key: ${{ secrets.OKX_SYNC_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Maintain the single draft PR
+        if: (steps.changes.outputs.changed == 'true' || steps.changes.outputs.obsolete == 'true') && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        env:
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REMOTE_SHA: ${{ steps.prepare.outputs.remote_sha }}
+          PR_NUMBER: ${{ steps.prepare.outputs.pr_number }}
+          OBSOLETE: ${{ steps.changes.outputs.obsolete }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Recheck review status immediately before any remote write.
+          if [[ -n "$PR_NUMBER" ]]; then
+            [[ "$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json isDraft,state --jq '.isDraft and .state == "OPEN"')" == true ]]
+          fi
+          if [[ "$OBSOLETE" == true ]]; then
+            gh pr close "$PR_NUMBER" --repo "$GITHUB_REPOSITORY"
+            exit 0
+          fi
+          bot_user="${APP_SLUG}[bot]"
+          bot_id="$(gh api "/users/${bot_user}" --jq .id)"
+          git config user.name "$bot_user"
+          git config user.email "${bot_id}+${bot_user}@users.noreply.github.com"
+          gh auth setup-git
+          git switch -C "$BRANCH"
+          git commit -m "fix: sync OKX registration domain from rendered Notion"
+          git push --force-with-lease="refs/heads/${BRANCH}:${REMOTE_SHA}" origin "HEAD:refs/heads/${BRANCH}"
+          pr_body="$RUNNER_TEMP/okx-referral-pr.md"
+          node --input-type=module > "$pr_body" <<'NODE'
+          import { readFileSync } from "node:fs";
+          const report = JSON.parse(readFileSync(`${process.env.RUNNER_TEMP}/okx-referral-report.json`, "utf8"));
+          console.log(`公开 Notion 的最新官方域名已变化，更新注册入口为 ${report.url}。\n`);
+          console.log(`来源：[固定 Notion 页面](${report.snapshot.sourceUrl})；Chromium 真实渲染后等待正文稳定并确认唯一 /join 候选。\n`);
+          console.log("仅修改 src/data/referrals.json 的 okx.url；邀请码 88596413、20%、officialUrl、DEX 和 Binance 均已保留。\n");
+          console.log("验证：npm run test:okx-referral-sync；npm run check。未访问注册页，不涉及 Cloudflare API。\n");
+          console.log(`运行：${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`);
+          NODE
+          if [[ -n "$PR_NUMBER" ]]; then
+            gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --title "fix: 同步 OKX 注册入口" --body-file "$pr_body"
+          else
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --draft --title "fix: 同步 OKX 注册入口" --body-file "$pr_body"
+          fi

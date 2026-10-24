@@ -130,6 +130,30 @@ OKX_SYNC_APP_PRIVATE_KEY Repository secret，GitHub App private key
 
 可先从 Actions 手动运行 `Sync OKX official activities` 并勾选 `dry_run`。GitHub App 使用短期安装令牌；不需要在仓库保存 PAT。合并前仍须核对地区、资格、起止时间、奖励和风险，明确的信息应补入正文与 frontmatter。
 
+## OKX 注册入口动态同步
+
+独立工作流 `.github/workflows/sync-okx-referral.yml` 每 6 小时读取[固定公开 Notion 页面](https://conscious-meerkat-b7e.notion.site/APK-https-www-mitxcqvwnhj-com-join-df0b826aa4b840fea1aa4f351529afd1)，也支持手动 `workflow_dispatch`（默认勾选 `dry_run`）。页面 ID `df0b826aa4b840fea1aa4f351529afd1` 是身份；slug 和页面标题不用于猜测当前域名，旧 slug 不变时仍读取最新正文。
+
+脚本使用锁定版本的 Playwright Chromium 执行页面 JavaScript，等待目标页面的 `.notion-page-content` 出现并稳定，然后从“最新官方域名”段内的可见文本和链接找唯一 `/join` 候选。官方验证链接、APK、脚本资源、隐藏节点和其他位置的域名不作为注册入口。只接受 HTTPS、受限的 ASCII `.com` hostname 与 `/join` 路径；来源占位符换成固定邀请码 `88596413`，来源出现其他邀请码则失败。失败、空内容、超时、拦截或歧义均以非零状态退出，不写配置。
+
+本地浏览器和 npm 缓存统一放在 `/data/development/cache`：
+
+```bash
+npm ci --cache /data/development/cache/npm
+PLAYWRIGHT_BROWSERS_PATH=/data/development/cache/ms-playwright npx --no-install playwright install chromium
+PLAYWRIGHT_BROWSERS_PATH=/data/development/cache/ms-playwright npm run test:okx-referral-sync
+PLAYWRIGHT_BROWSERS_PATH=/data/development/cache/ms-playwright npm run sync:okx-referral -- --dry-run --report /data/development/artifacts/okx-referral-report.json
+npm run check
+```
+
+脚本默认 dry-run，只有显式 `--write` 才写本地 `src/data/referrals.json` 的 `okx.url`；其他配置和文件格式保持不变，同一 URL 不写文件。脚本不操作 Git，也不访问候选注册页、登录或调用 Cloudflare。报告包含渲染时间、Chromium 版本、最终页面 URL、正文 SHA-256、可见正文与候选证据；dry-run 可写指定报告文件，不写返佣配置。
+
+CI 在临时 checkout 中运行 `--write`、动态浏览器测试和完整 `npm run check`，以便校验实际差异。手动 dry-run 只保留本地计算，不申请 App token、不推分支、不创建或修改 PR。正常同步只维护 `automation/okx-referral-sync` 上的同一个 Draft PR；与已有分支内容一致时无提交，无变化时不创建 PR，来源回到 main 值时关闭过期草稿。非 Draft PR 留给人工处理并报错。独立分支和并发组不接触活动同步 PR、状态或生成文章；不直推 main、不自动合并、不部署。
+
+复用活动同步已配置的 `OKX_SYNC_APP_CLIENT_ID`（repository variable）及 `OKX_SYNC_APP_PRIVATE_KEY`（repository secret）。App 必须只安装到 `ranxi2001/tosky`，权限为 `Contents: Read and write`、`Pull requests: Read and write`、`Metadata: Read`；默认 `GITHUB_TOKEN` 只读，成功校验且确需更新 Draft PR 时才申请短期安装令牌。不需要 Cloudflare token，也不需要额外 PAT。App 令牌不能绕过仓库规则，生产发布仍由人工合并后的既有流程控制。
+
+旧 `tools/link_updater.py`、`tools/domain_monitor.py` 和相关快捷入口已停用，导入或运行都会明确报错，详见 [tools/README.md](tools/README.md)。不要恢复静态 HTML 的首个 `.com` 或 slug fallback。
+
 ### 返佣链接
 
 不要在 Markdown 正文中粘贴注册链接、邀请码参数或渠道链接。文章与活动详情页默认展示 OKX 注册卡片；需要其他平台时设置已定义的 `affiliateKey` 覆盖默认值。展示组件会从 `src/data/referrals.json` 取出入口，并统一添加返佣披露与链接属性。

@@ -13,9 +13,11 @@
     "check:content": "node scripts/check-content.mjs",
     "check:production": "node scripts/check-production.mjs",
     "test:okx-sync": "node --test tests/okx-activity-sync.test.mjs",
+    "test:okx-referral-sync": "node --test tests/okx-referral-sync.test.mjs",
     "check": "npm run test:okx-sync && npm run typecheck && npm run lint:docs && npm run check:content && npm run build",
     "new:post": "node scripts/new-post.mjs",
     "sync:okx": "node scripts/sync-okx-activities.mjs",
+    "sync:okx-referral": "node scripts/sync-okx-referral.mjs",
     "preview:cf": "npm run build && wrangler dev",
     "predeploy": "npm run check",
     "deploy": "wrangler deploy"
@@ -41,6 +43,7 @@
     "@astrojs/check": "0.9.9",
     "@tailwindcss/vite": "4.3.3",
     "pagefind": "1.5.2",
+    "playwright": "1.64.1",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
     "wrangler": "4.114.0"
