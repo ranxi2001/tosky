@@ -13,7 +13,7 @@
     "check:content": "node scripts/check-content.mjs",
     "check:production": "node scripts/check-production.mjs",
     "test:okx-sync": "node --test tests/okx-activity-sync.test.mjs",
-    "test:okx-referral-sync": "node --test tests/okx-referral-sync.test.mjs",
+    "test:okx-referral-sync": "node --test tests/okx-referral-sync.test.mjs tests/okx-referral-publish.test.mjs",
     "check": "npm run test:okx-sync && npm run typecheck && npm run lint:docs && npm run check:content && npm run build",
     "new:post": "node scripts/new-post.mjs",
     "sync:okx": "node scripts/sync-okx-activities.mjs",

@@ -148,9 +148,11 @@ npm run check
 
 脚本默认 dry-run，只有显式 `--write` 才写本地 `src/data/referrals.json` 的 `okx.url`；其他配置和文件格式保持不变，同一 URL 不写文件。脚本不操作 Git，也不访问候选注册页、登录或调用 Cloudflare。报告包含渲染时间、Chromium 版本、最终页面 URL、正文 SHA-256、可见正文与候选证据；dry-run 可写指定报告文件，不写返佣配置。
 
-CI 在临时 checkout 中运行 `--write`、动态浏览器测试和完整 `npm run check`，以便校验实际差异。手动 dry-run 只保留本地计算，不申请 App token、不推分支、不创建或修改 PR。正常同步只维护 `automation/okx-referral-sync` 上的同一个 Draft PR；与已有分支内容一致时无提交，无变化时不创建 PR，来源回到 main 值时关闭过期草稿。非 Draft PR 留给人工处理并报错。独立分支和并发组不接触活动同步 PR、状态或生成文章；不直推 main、不自动合并、不部署。
+私有仓库采用直接推送策略。CI 在 main 的固定 SHA 上运行 `--write`、动态浏览器及直接发布测试和完整 `npm run check`（含构建）。`scripts/publish-okx-referral.mjs` 先预检整个工作区、暂存区和未跟踪文件，只允许 `src/data/referrals.json` 的 `okx.url` 与渲染证据一致地改变，其他配置与字节保持不变。无变化时无提交，默认手动 dry-run 仅作本地计算，不申请 App token，不推送或触发部署。新同步不创建额外分支，不创建、修改、关闭或合并 PR。
 
-复用活动同步已配置的 `OKX_SYNC_APP_CLIENT_ID`（repository variable）及 `OKX_SYNC_APP_PRIVATE_KEY`（repository secret）。App 必须只安装到 `ranxi2001/tosky`，权限为 `Contents: Read and write`、`Pull requests: Read and write`、`Metadata: Read`；默认 `GITHUB_TOKEN` 只读，成功校验且确需更新 Draft PR 时才申请短期安装令牌。不需要 Cloudflare token，也不需要额外 PAT。App 令牌不能绕过仓库规则，生产发布仍由人工合并后的既有流程控制。
+校验通过且有变化的非 dry-run 才复用 `OKX_SYNC_APP_CLIENT_ID`（repository variable）及 `OKX_SYNC_APP_PRIVATE_KEY`（repository secret）申请短期 App 安装令牌。本 workflow 仅请求当前仓库 `Contents: Read and write`（隐含 `Metadata: Read`），不请求 Pull requests 或 Actions 写权限；默认 `GITHUB_TOKEN` 仅有 Contents read，checkout 不保留凭据。发布前重新 fetch main：与校验 SHA 不同则明确失败，要求从最新 main 重新抓取、校验和构建，不重放旧构建。相同才提交唯一白名单文件并普通 fast-forward push main；fetch 后的并发推进由 Git 非 force push 拒绝，不覆盖别人。远端规则或网络拒绝均非零退出，不自动重试或绕过保护。
+
+push 使用 App 安装令牌而非 `GITHUB_TOKEN`，因此会触发现有 `.github/workflows/deploy.yml` 的 main push 事件，按既有 validate → deploy 链重新校验后部署；这是 [GitHub 官方支持的跨 workflow 触发方式](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow#triggering-a-workflow-from-a-workflow)。不需要额外 workflow_dispatch、Actions 写权限、Cloudflare token 或 PAT。此流程不改活动同步 workflow、现有活动 PR、状态和生成文章，也不修改 Cloudflare 规则。此处的直接推送迁移仅覆盖注册链接同步。
 
 旧 `tools/link_updater.py`、`tools/domain_monitor.py` 和相关快捷入口已停用，导入或运行都会明确报错，详见 [tools/README.md](tools/README.md)。不要恢复静态 HTML 的首个 `.com` 或 slug fallback。
 

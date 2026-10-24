@@ -6,7 +6,7 @@
 PLAYWRIGHT_BROWSERS_PATH=/data/development/cache/ms-playwright npm run sync:okx-referral -- --dry-run
 ```
 
-完整安装、验证、App 权限和 Draft PR 流程见根目录 README 的“OKX 注册入口动态同步”。新流程不读取 `tools/link_config.json` 或 `tools/cloudflare_config.json`，不需要 Cloudflare token。
+完整安装、验证、App 最小权限和直接 fast-forward main 流程见根目录 README 的“OKX 注册入口动态同步”。新同步不使用额外分支或 PR；完成校验和构建后，只有最小白名单变更才通过 Contents write App 安装令牌推送 main，触发现有部署链。并发或远端拒绝时明确失败。新流程不读取 `tools/link_config.json` 或 `tools/cloudflare_config.json`，不需要 Cloudflare token。
 
 旧 `link_updater.py` 从 Notion URL slug 猜域名，`domain_monitor.py` 会选择静态 HTML 中任意 `.com` 并回退到 slug。这些逻辑无法跟踪同一页面正文更新，也可能把官方验证页、资源域名或 APK 当成注册链接，现已删除。
 
